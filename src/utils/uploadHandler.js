@@ -1,0 +1,18 @@
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Lưu ảnh vào thư mục uploads ở gốc dự án
+    cb(null, path.join(__dirname, '../../uploads/'));
+  },
+  filename: function (req, file, cb) {
+    // Đặt tên file = Date.now() + originalname để chống ghi đè
+    const uniqueSuffix = Date.now() + '-' + file.originalname;
+    cb(null, uniqueSuffix);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+module.exports = upload;

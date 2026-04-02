@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Bác Sĩ - Y Tế Số</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-gradient { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); }
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); }
+        .star-active { filter: none; }
+        .star-muted { filter: grayscale(1); opacity: 0.3; }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen">
+
+    <nav class="bg-blue-900 border-b border-blue-700 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-black text-white tracking-widest uppercase flex items-center gap-2">🏥 Y-TẾ-SỐ</a>
+            <div id="auth-links" class="flex gap-4"></div>
+        </div>
+    </nav>
+
+    <!-- HERO PROFILE HEADER -->
+    <header id="profileHero" class="hero-gradient text-white py-16 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: url('https://images.pexels.com/photos/3845810/pexels-photo-3845810.jpeg?auto=compress&cs=tinysrgb&w=1600'); background-size: cover; background-position: center;"></div>
+        <div class="max-w-5xl mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center gap-10">
+            <!-- Avatar -->
+            <div class="flex-shrink-0">
+                <img id="pAvatar" src="https://cdn-icons-png.flaticon.com/512/3750/3750486.png" class="w-44 h-44 rounded-full object-cover border-4 border-white/30 shadow-2xl">
+            </div>
+            <!-- Info -->
+            <div class="flex-1 text-center md:text-left">
+                <h1 id="pName" class="text-4xl font-black mb-2">Đang tải...</h1>
+                <p id="pDept" class="text-blue-300 font-bold text-lg mb-4 uppercase tracking-wider">Chuyên Khoa</p>
+                
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start mb-6">
+                    <div class="glass px-5 py-3 rounded-xl text-center">
+                        <p class="text-2xl font-black" id="pExp">--</p>
+                        <p class="text-xs text-blue-300 font-bold uppercase">Năm Kinh Nghiệm</p>
+                    </div>
+                    <div class="glass px-5 py-3 rounded-xl text-center">
+                        <p class="text-2xl font-black" id="pPrice">--</p>
+                        <p class="text-xs text-blue-300 font-bold uppercase">Phí Khám (VNĐ)</p>
+                    </div>
+                    <div class="glass px-5 py-3 rounded-xl text-center">
+                        <p class="text-2xl font-black" id="pRating">--</p>
+                        <p class="text-xs text-blue-300 font-bold uppercase">Đánh Giá TB</p>
+                    </div>
+                </div>
+
+                <a id="btnBookNow" href="#" class="inline-block bg-emerald-500 text-white font-black px-10 py-4 rounded-2xl shadow-lg hover:bg-emerald-600 hover:-translate-y-1 transition transform text-lg">📅 ĐẶT LỊCH KHÁM NGAY</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- BODY CONTENT -->
+    <main class="max-w-5xl mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- CỘT TRÁI: GIỚI THIỆU + FORM CHỈNH SỬA (CHỈ DOCTOR THẤY) -->
+            <div class="md:col-span-2 space-y-8">
+                <!-- Giới thiệu -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+                    <h2 class="text-2xl font-black text-slate-800 mb-4 border-l-4 border-blue-500 pl-4">Giới Thiệu Chuyên Môn</h2>
+                    <p id="pDesc" class="text-slate-600 font-medium leading-relaxed">Đang tải thông tin...</p>
+                </div>
+
+                <!-- FORM QUẢN LÝ PROFILE (CHỈ BÁC SĨ CHỦ SỞ HỮU) -->
+                <div id="editSection" class="bg-blue-50 rounded-3xl p-8 border-2 border-blue-200 shadow-sm hidden">
+                    <h2 class="text-2xl font-black text-blue-800 mb-6 border-l-4 border-blue-600 pl-4">✏️ Quản Lý Profile Của Tôi</h2>
+                    <form id="formEditProfile" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-blue-700 mb-1">Cập Nhật Ảnh Đại Diện</label>
+                                <input type="file" id="eAvatar" class="w-full border-2 border-blue-200 p-2 rounded-xl bg-white file:border-0 file:bg-blue-100 file:text-blue-700 file:font-black file:px-4 file:py-2 file:rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-blue-700 mb-1">Số Năm Kinh Nghiệm</label>
+                                <input type="number" id="eExp" class="w-full border-2 border-blue-200 p-3 rounded-xl outline-none focus:border-blue-500 font-bold" min="0">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-blue-700 mb-1">Phí Khám Bệnh (VNĐ)</label>
+                                <input type="number" id="ePrice" class="w-full border-2 border-blue-200 p-3 rounded-xl outline-none focus:border-blue-500 font-bold" min="0" step="10000">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-blue-700 mb-1">Mô Tả Chuyên Môn / Kinh Nghiệm</label>
+                            <textarea id="eDesc" rows="4" class="w-full border-2 border-blue-200 p-3 rounded-xl outline-none focus:border-blue-500 font-medium"></textarea>
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white font-black px-8 py-3 rounded-xl shadow-lg hover:bg-blue-700 transition">💾 CẬP NHẬT PROFILE</button>
+                    </form>
+                </div>
+
+                <!-- ĐÁNH GIÁ TỪ BỆNH NHÂN -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+                    <h2 class="text-2xl font-black text-slate-800 mb-6 border-l-4 border-purple-500 pl-4">⭐ Đánh Giá Từ Bệnh Nhân</h2>
+                    <div id="reviewsList" class="space-y-4">
+                        <p class="text-slate-400 font-medium">Đang tải đánh giá...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: LỊCH KHÁM KHẢ DỤNG -->
+            <div class="space-y-8">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm sticky top-24">
+                    <h3 class="text-lg font-black text-slate-800 mb-4 text-center">📋 Lịch Khám Khả Dụng</h3>
+                    <div id="scheduleList" class="space-y-3">
+                        <p class="text-slate-400 font-medium text-center text-sm">Đang tải...</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <a id="btnBookSide" href="#" class="block text-center bg-emerald-500 text-white font-black py-3 rounded-xl shadow hover:bg-emerald-600 transition">📅 ĐẶT LỊCH</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center border-t-4 border-blue-600">
+        <p class="font-medium">🏥 Bản Quyền MedicalBooking Y-TẾ-SỐ © 2026</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuthAndRole(); // Không yêu cầu role, trang công khai
+        renderNavbarPublic();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const doctorId = urlParams.get('id');
+        if (!doctorId) { alert('Không tìm thấy ID bác sĩ!'); window.location.href = '/index.html'; }
+
+        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const isOwner = curUser && curUser.role === 'DOCTOR' && curUser._id === doctorId;
+        let doctorInfoId = null; // ID của bản ghi DoctorInfo (để PUT update)
+
+        // ================== LOAD THÔNG TIN BÁC SĨ ==================
+        async function loadDoctorProfile() {
+            try {
+                // 1. Lấy User Cơ Bản
+                const doc = await authFetch(`/users/${doctorId}`);
+                document.getElementById('pAvatar').src = doc.imageUrl || 'https://cdn-icons-png.flaticon.com/512/3750/3750486.png';
+                document.getElementById('pName').innerText = doc.fullName || doc.username;
+                document.getElementById('pDept').innerText = doc.specialtyId ? doc.specialtyId.name : (doc.department || 'Đa Khoa');
+                document.title = `${doc.fullName} - Y Tế Số`;
+
+                // 2. Lấy DoctorInfo Nâng Cao (experience, price, description)
+                const allInfos = await authFetch('/doctor-info');
+                const myInfo = allInfos.find(i => i.userId === doctorId || (i.userId && i.userId._id === doctorId));
+                
+                if (myInfo) {
+                    doctorInfoId = myInfo._id;
+                    document.getElementById('pExp').innerText = myInfo.experience_years || 0;
+                    document.getElementById('pPrice').innerText = (myInfo.price || 150000).toLocaleString('vi-VN');
+                    document.getElementById('pDesc').innerText = myInfo.description || 'Bác sĩ chưa cập nhật thông tin giới thiệu chuyên môn.';
+                    // Fill form edit
+                    document.getElementById('eExp').value = myInfo.experience_years || 0;
+                    document.getElementById('ePrice').value = myInfo.price || 150000;
+                    document.getElementById('eDesc').value = myInfo.description || '';
+                } else {
+                    document.getElementById('pExp').innerText = '--';
+                    document.getElementById('pPrice').innerText = '150,000';
+                    document.getElementById('pDesc').innerText = 'Bác sĩ chưa thiết lập hồ sơ chi tiết. Hãy liên hệ bệnh viện để biết thêm.';
+                }
+
+                // 3. Lấy Reviews
+                const allReviews = await authFetch('/reviews');
+                const docReviews = allReviews.filter(r => r.doctorId === doctorId || (r.doctorId && r.doctorId._id === doctorId));
+                
+                const rvBox = document.getElementById('reviewsList');
+                if (docReviews.length > 0) {
+                    const avgRating = (docReviews.reduce((s, r) => s + r.rating, 0) / docReviews.length).toFixed(1);
+                    document.getElementById('pRating').innerText = `⭐ ${avgRating}`;
+                    
+                    rvBox.innerHTML = '';
+                    docReviews.forEach(rv => {
+                        const stars = '⭐'.repeat(rv.rating) + '<span class="star-muted">' + '⭐'.repeat(5 - rv.rating) + '</span>';
+                        const ptName = rv.patientId ? (rv.patientId.fullName || rv.patientId.username) : 'Bệnh nhân ẩn danh';
+                        const dateStr = new Date(rv.createdAt).toLocaleDateString('vi-VN');
+                        rvBox.innerHTML += `
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-slate-700">${ptName}</span>
+                                <span class="text-xs text-slate-400">${dateStr}</span>
+                            </div>
+                            <div class="text-lg mb-1">${stars}</div>
+                            <p class="text-slate-500 font-medium text-sm">${rv.comment || 'Không có nhận xét.'}</p>
+                        </div>`;
+                    });
+                } else {
+                    document.getElementById('pRating').innerText = 'Mới';
+                    rvBox.innerHTML = '<p class="text-slate-400 font-medium text-center py-6">Chưa có đánh giá nào.</p>';
+                }
+
+                // 4. Lấy Lịch Khám
+                const allScheds = await authFetch('/schedules');
+                const docScheds = allScheds.filter(s => s.doctorId === doctorId && !s.isDeleted);
+                const schBox = document.getElementById('scheduleList');
+                
+                if (docScheds.length > 0) {
+                    schBox.innerHTML = '';
+                    docScheds.forEach(s => {
+                        const ds = new Date(s.date).toLocaleDateString('vi-VN');
+                        const cls = s.isBooked
+                            ? 'bg-red-50 border-red-200 text-red-500 opacity-60'
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-700';
+                        const label = s.isBooked ? '🔒 Hết chỗ' : '✅ Còn trống';
+                        schBox.innerHTML += `
+                        <div class="p-3 rounded-xl border-2 ${cls} text-center font-bold text-sm">
+                            <p>${s.timeSlot}</p>
+                            <span class="text-xs opacity-70">${ds}</span>
+                            <span class="block text-[10px] mt-1">${label}</span>
+                        </div>`;
+                    });
+                } else {
+                    schBox.innerHTML = '<p class="text-slate-400 text-center text-sm font-medium py-6">Bác sĩ chưa mở lịch trực.</p>';
+                }
+
+                // 5. Link Đặt Lịch
+                const bookUrl = `/booking.html?doctorId=${doctorId}`;
+                document.getElementById('btnBookNow').href = bookUrl;
+                document.getElementById('btnBookSide').href = bookUrl;
+
+                // 6. Nếu là chủ sở hữu → hiện form chỉnh sửa
+                if (isOwner) {
+                    document.getElementById('editSection').classList.remove('hidden');
+                }
+
+            } catch(e) {
+                document.getElementById('pName').innerText = 'Lỗi tải hồ sơ';
+                console.error(e);
+            }
+        }
+
+        // ================== CẬP NHẬT PROFILE (CHỈ BÁC SĨ) ==================
+        document.getElementById('formEditProfile').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const fileInput = document.getElementById('eAvatar');
+            btn.innerHTML = '🔄 Đang đồng bộ hóa dữ liệu...';
+            btn.disabled = true;
+
+            try {
+                // 1. Xử lý Upload Ảnh nếu có
+                if (fileInput.files.length > 0) {
+                    const frmData = new FormData();
+                    frmData.append('file', fileInput.files[0]);
+                    const uplRes = await fetch(`${API_URL}/upload`, { method: 'POST', body: frmData }).then(r => r.json());
+                    if (uplRes.url) {
+                        // Cập nhật User ImageUrl
+                        await authFetch(`/users/${doctorId}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({ imageUrl: uplRes.url })
+                        });
+                        // Cập nhật session user
+                        const user = JSON.parse(localStorage.getItem('user'));
+                        user.imageUrl = uplRes.url;
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                }
+
+                // 2. Cập nhật DoctorInfo
+                const payload = {
+                    experience_years: parseInt(document.getElementById('eExp').value) || 0,
+                    price: parseInt(document.getElementById('ePrice').value) || 150000,
+                    description: document.getElementById('eDesc').value
+                };
+
+                if (doctorInfoId) {
+                    await authFetch(`/doctor-info/${doctorInfoId}`, { method: 'PUT', body: JSON.stringify(payload) });
+                } else {
+                    payload.userId = doctorId;
+                    payload.specialtyId = curUser.specialtyId?._id || curUser.specialtyId;
+                    const created = await authFetch('/doctor-info', { method: 'POST', body: JSON.stringify(payload) });
+                    doctorInfoId = created._id;
+                }
+                alert('Cập nhật Profile và Ảnh đại diện thành công!');
+                location.reload(); // Reload để cập nhật toàn bộ UI (bao gồm Navbar/Header)
+            } catch(er) {
+                alert('Lỗi cập nhật: ' + er.message);
+                btn.innerHTML = '💾 CẬP NHẬT PROFILE';
+                btn.disabled = false;
+            }
+        });
+
+        window.onload = loadDoctorProfile;
+    </script>
+</body>
+</html>

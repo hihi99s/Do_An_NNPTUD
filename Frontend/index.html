@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y Tế Số Thế Hệ Mới - MedicalBooking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .carousel-item { transition: opacity 0.8s ease-in-out; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <nav class="bg-blue-900 border-b border-blue-700 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="text-2xl font-black text-white tracking-widest uppercase flex items-center gap-2">🏥 Y-TẾ-SỐ POST</h1>
+            <div id="auth-links" class="flex gap-4"></div>
+        </div>
+    </nav>
+
+    <!-- CAROUSEL HERO SECTION (ĐẸP & CHUYÊN NGHIỆP) -->
+    <header class="relative w-full h-[500px] overflow-hidden bg-slate-900 shadow-2xl mb-12">
+        <div id="hero-slider" class="relative w-full h-full">
+            <!-- Inject Images here -->
+             <div class="absolute inset-0 flex items-center justify-center"><div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div></div>
+        </div>
+        <!-- Lớp phủ Glassmorphism cho bộ tìm kiếm -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-[90%] max-w-4xl">
+            <div class="glass-panel p-6 rounded-3xl shadow-2xl border border-white/20 flex gap-4 mt-8 items-center">
+                <input type="text" id="searchInput" placeholder="Nhập tên bác sĩ hoặc triệu chứng..." class="flex-1 w-full bg-slate-50 border-2 border-slate-200 text-slate-800 rounded-xl px-5 py-3 focus:outline-none focus:border-blue-500 font-bold shadow-inner">
+                <button onclick="searchDocs()" class="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-black py-4 px-8 rounded-xl transition transform hover:scale-105 shadow-blue-500/50 shadow-lg whitespace-nowrap">TÌM CHUYÊN GIA</button>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- DOCTOR CARDS GRID -->
+    <main class="max-w-7xl mx-auto px-4 pb-20">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-black text-blue-900 mb-3">ĐỘI NGŨ Y BÁC SĨ TẬN TÂM</h2>
+            <p class="text-slate-500 font-medium text-lg">Hệ thống Đặt hẹn Công nghệ 4.0 - Chọn Trúng Đích Khung Giờ Hoàn Mỹ Mới</p>
+        </div>
+
+        <div id="doctor-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Skeleton Loading Tạm Thời -->
+            <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100 flex gap-4 p-4 animate-pulse"><div class="w-24 h-24 bg-slate-200 rounded-full"></div><div class="flex-1 space-y-3 py-2"><div class="h-4 bg-slate-200 rounded w-3/4"></div><div class="h-3 bg-slate-200 rounded w-1/2"></div><div class="h-8 bg-blue-100 rounded w-full mt-4"></div></div></div>
+        </div>
+        
+        <!-- Phan Trang Chuan Hoa -->
+        <div class="flex justify-center mt-12 gap-2" id="pagination"></div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-12 text-center border-t-4 border-blue-600">
+        <h1 class="text-white font-black text-2xl uppercase tracking-widest mb-4">🏥 Bản Quyền MedicalBooking Y-TẾ-SỐ</h1>
+        <p class="font-medium max-w-lg mx-auto">Nền tảng Quản trị và Kết Nối Bác sĩ - Bệnh nhân thông minh ứng dụng MongoDB + Mongoose Populate + Giao thức Mã hóa Tuyệt Đối.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuthAndRole();
+        renderNavbarPublic();
+
+        // ----------------- CAROUSEL KHỦNG LONG -----------------
+        let currentSlide = 0; let totalSlides = 0;
+        async function loadBanners() {
+            try {
+                // Thử Call Banners, Nếu hụt thì Hardcode Ảnh xịn
+                const res = await authFetch('/banners');
+                let banners = [];
+                if(Array.isArray(res) && res.length > 0) banners = res.filter(b => b.isActive && !b.isDeleted);
+                if(banners.length === 0) {
+                    // Dữ liệu Fallback mẫu cứng cực đẹp
+                    banners = [
+                        {_id: 1, imageUrl: 'https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'},
+                        {_id: 2, imageUrl: 'https://images.pexels.com/photos/3845981/pexels-photo-3845981.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'}
+                    ];
+                }
+                const hr = document.getElementById('hero-slider');
+                hr.innerHTML = ''; totalSlides = banners.length;
+                banners.forEach((b, idx) => {
+                    const z = idx === 0 ? 'opacity-100 relative' : 'opacity-0 absolute inset-0';
+                    hr.innerHTML += `<img src="${b.imageUrl}" class="w-full h-full object-cover carousel-item ${z}" id="slide-${idx}">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent flex flex-col justify-end p-20 carousel-item ${z}" id="txt-${idx}">
+                        <h2 class="text-white text-5xl font-black shadow-lg">KHÁM CHỮA BỆNH ĐIỆN TỬ - Y TẾ SỐ</h2>
+                        <p class="text-blue-200 mt-2 text-xl font-medium drop-shadow-md">Nền Tảng Trải Nghiệm Khám Tiên Phong Việt Nam Cùng Mạng Lưới Rộng Trọn Khắp</p>
+                    </div>`;
+                });
+                
+                setInterval(() => {
+                    if(totalSlides < 2) return;
+                    document.getElementById(`slide-${currentSlide}`).classList.replace('opacity-100', 'opacity-0');
+                    document.getElementById(`txt-${currentSlide}`).classList.replace('opacity-100', 'opacity-0');
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    document.getElementById(`slide-${currentSlide}`).classList.replace('opacity-0', 'opacity-100');
+                    document.getElementById(`txt-${currentSlide}`).classList.replace('opacity-0', 'opacity-100');
+                }, 4000); // 4 Giây đổi 1 slide
+            } catch(e) {}
+        }
+
+
+        // ----------------- DOCTOR CARD NÂNG CẤP -----------------
+        let currentPage = 1;
+
+        async function searchDocs() {
+            currentPage = 1;
+            loadDoctors(document.getElementById('searchInput').value);
+        }
+
+        async function loadDoctors(keyword = '') {
+            const listObj = document.getElementById('doctor-list');
+            const pageObj = document.getElementById('pagination');
+            
+            try {
+                const qs = `/users?limit=6&page=${currentPage}&role=DOCTOR${keyword ? '&search=' + encodeURIComponent(keyword) : ''}`;
+                const data = await authFetch(qs);
+                
+                // Mongoose mới trả về { users:[...], totalPages: X }
+                const usersArr = data.users || [];
+                const totPg = data.totalPages || 1;
+
+                listObj.innerHTML = '';
+                if (usersArr.length === 0) {
+                    listObj.innerHTML = `<div class="col-span-full py-10 text-center"><p class="text-2xl font-bold text-slate-400">Không có vị lương y nào tồn tại trong Hồ Sơ.</p></div>`;
+                }
+
+                usersArr.forEach(doctor => {
+                    const avatar = doctor.imageUrl || 'https://cdn-icons-png.flaticon.com/512/3750/3750486.png';
+                    const sName = doctor.specialtyId ? doctor.specialtyId.name : (doctor.department || "Khám Tổng Quát");
+                    // Random Mockup data for Experience and Rating since DoctorInfos is not fully populated in User endpoint
+                    const rngStar = (4 + Math.random()).toFixed(1);
+                    const rngYears = Math.floor(Math.random() * 15) + 5;
+
+                    listObj.innerHTML += `
+                        <div class="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 hover:-translate-y-2 transition-transform duration-300 group flex flex-col">
+                            <a href="profile.html?id=${doctor._id}" class="flex p-5 gap-5 border-b border-slate-50 items-center cursor-pointer">
+                                <img src="${avatar}" alt="${doctor.fullName}" class="w-24 h-24 object-cover rounded-full border-4 border-blue-50 shadow-md">
+                                <div>
+                                    <h3 class="text-xl font-black text-blue-900 group-hover:text-blue-600 transition">${doctor.fullName || doctor.username}</h3>
+                                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">${sName}</p>
+                                    <div class="flex gap-2">
+                                        <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded">⭐ ${rngStar} / 50 Nhận Xét</span>
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="px-6 py-4 bg-slate-50/50 flex-1 flex justify-between items-center text-sm font-medium text-slate-500">
+                                <p>⏱ Thâm niên: ${rngYears} Năm</p>
+                                <p>💎 Phí cơ bản: Khung ~150k</p>
+                            </div>
+                            <div class="p-4 flex gap-3">
+                                <a href="profile.html?id=${doctor._id}" class="flex-1 py-3 px-4 bg-slate-100 text-slate-600 hover:bg-slate-200 font-black rounded-xl transition shadow-sm border border-slate-200 text-center text-sm">👤 XEM HỒ SƠ</a>
+                                <a href="booking.html?doctorId=${doctor._id}" class="flex-1 py-3 px-4 bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white font-black rounded-xl transition shadow-sm border border-blue-200 text-center text-sm">📅 ĐẶT LỊCH</a>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Xử lý Phân trang Ngang
+                pageObj.innerHTML = '';
+                for (let i = 1; i <= totPg; i++) {
+                    const activeCls = (i === currentPage) ? 'bg-blue-600 text-white font-black outline-offset-2 outline-blue-400' : 'bg-white text-slate-500 font-bold border border-slate-200 hover:bg-blue-50';
+                    pageObj.innerHTML += `<button onclick="currentPage=${i}; loadDoctors('${keyword}');" class="w-10 h-10 rounded-full shadow-sm transition ${activeCls}">${i}</button>`;
+                }
+
+            } catch (error) {
+                listObj.innerHTML = `<p class="col-span-full text-red-500 text-center py-10 font-bold">Lỗi truy xuất hệ thống lưới: ${error.message}</p>`;
+            }
+        }
+
+        window.onload = () => {
+            loadBanners();
+            loadDoctors();
+        };
+    </script>
+</body>
+</html>

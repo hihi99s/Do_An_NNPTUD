@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Y Tế Số</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 w-full max-w-md text-center">
+        <h1 class="text-3xl font-black text-blue-600 mb-2">Tạo Tài Khoản Đi Lắm</h1>
+        <p class="text-slate-500 font-medium mb-8">Mặc định thiết lập Quyền (PATIENT)</p>
+
+        <!-- Nút Đăng nhập mô phỏng bằng Google -->
+        <button id="btnGoogle" onclick="mockGoogleLogin()" class="w-full flex items-center justify-center gap-3 bg-red-50 border border-red-100 text-red-600 font-bold py-3 rounded-xl hover:bg-red-100 transition whitespace-nowrap mb-6 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H42V19.8H24v8.4h11.2C33.6 33.1 29.3 35.5 24 35.5c-6.4 0-11.7-4.2-13.3-10-1-3.6-1-7.4 0-11 1.6-5.8 6.9-10 13.3-10 3.1 0 6 .9 8.3 2.5l6-6.1C34.7 1.5 29.7 0 24 0 14.8 0 6.9 5.3 2.7 13.2c-1.8 3.5-2.8 7.4-2.8 11.5s1 8 2.8 11.5c4.1 7.9 12.1 13.2 21.3 13.2 9 0 16.5-3 22.1-8.2 6.6-6.1 10.4-15 10.4-24.8V20H43.6z"></path><path fill="#FF3D00" d="M24 8.7c3.1 0 5.9 1.1 8 2.9l6-6.1C34.6 2 29.6 0 24 0 14.7 0 6.8 5.3 2.7 13.2l9.9 7.7C14.3 14 18.7 8.7 24 8.7z"></path><path fill="#4CAF50" d="M24 39.3c-5.3 0-9.7-5.3-11.4-12.2l-9.9 7.7C6.8 42.7 14.7 48 24 48c8.8 0 16.4-2.9 22-7.8l-9.4-7.3C33 37.1 29 39.3 24 39.3z"></path><path fill="#1976D2" d="M48 24.5c0-1.6-.2-3.1-.5-4.5H24v8.4h13.6c-1.3 4.2-4.5 7.6-8.6 9l9.4 7.3C43.5 39.9 48 32.8 48 24.5z"></path></svg>
+            Đăng nhập nhanh với Google Mock
+        </button>
+
+        <div class="relative flex items-center justify-center mb-6">
+            <span class="absolute bg-white px-2 text-slate-400 text-sm font-bold">HOẶC DÙNG EMAIL</span>
+            <div class="w-full h-px bg-slate-200"></div>
+        </div>
+
+        <form id="regForm" class="space-y-4 text-left">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Tên Đăng Nhập</label>
+                <input type="text" id="rUser" class="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-blue-500 outline-none font-medium" required>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Họ Tên Thật</label>
+                <input type="text" id="rName" class="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-blue-500 outline-none font-medium" required>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Email</label>
+                <input type="email" id="rEmail" class="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-blue-500 outline-none font-medium" required>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Mật khẩu</label>
+                <input type="password" id="rPass" class="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-blue-500 outline-none font-medium" required>
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition">Thành Lập Tài Khoản (Role: PATIENT)</button>
+        </form>
+        
+        <p class="text-sm font-medium text-slate-600 mt-6">Bạn đã có tài khoản? <a href="login.html" class="text-blue-600 font-bold hover:underline">Về Form Đăng Nhập</a>.</p>
+    </div>
+
+    <!-- API Core -->
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            try {
+                btn.innerText = "Hệ thống đang xoay..."; btn.disabled = true;
+
+                // Chuẩn bị Data với ROLE bắt buộc
+                const bodyJson = JSON.stringify({
+                    username: document.getElementById('rUser').value,
+                    fullName: document.getElementById('rName').value,
+                    email: document.getElementById('rEmail').value,
+                    password: document.getElementById('rPass').value,
+                    role: 'PATIENT' // LUÔN LUÔN LÀ PATIENT NẾU TỰ ĐĂNG KÝ
+                });
+
+                // Do hàm POST /users trả về User thay vì Token
+                const res = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: bodyJson
+                });
+
+                if(res.ok) {
+                    alert("Khởi tạo thành công! Vui lòng tự đăng nhập lại.");
+                    window.location.href = "login.html";
+                } else {
+                    const errObj = await res.json();
+                    alert("Lỗi Backend: " + errObj.error);
+                }
+
+            } catch(e) { alert(e.message); }
+            finally { btn.innerText = "Thành Lập Tài Khoản (Role: PATIENT)"; btn.disabled = false; }
+        });
+
+        // ------------------ GOOGLE MOCK OAUTH ------------------
+        window.mockGoogleLogin = async () => {
+            const btn = document.getElementById('btnGoogle');
+            btn.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-red-600 mr-2"></div> Đang mô phỏng Callback Server...';
+            btn.disabled = true;
+
+            setTimeout(async () => {
+                const googlePayload = {
+                    username: "gg_" + Date.now().toString().slice(-6),
+                    fullName: "Khách Google Toàn Cầu Oauth2",
+                    email: "ggauth_" + Date.now().toString().slice(-4) + "@gmail.com",
+                    password: "123", // Mật khẩu chìm cho local
+                    role: "PATIENT"
+                };
+
+                try {
+                    // 1. Fake Callback tạo User từ CSDL Google
+                    const res = await fetch(`${API_URL}/users`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(googlePayload)
+                    });
+
+                    if(res.ok) {
+                        // 2. Chặn Request tự động Login cấp JWT Y-Tế-Số
+                        const lRes = await fetch(`${API_URL}/auth/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: googlePayload.username, password: "123" })
+                        });
+                        const lData = await lRes.json();
+                        if(lRes.ok) {
+                            localStorage.setItem('token', lData.token);
+                            localStorage.setItem('user', JSON.stringify(lData.user));
+                            alert("Xác thực Ủy quyền Google thành công! Hệ thống sẽ đưa bạn vào sảnh chờ.");
+                            window.location.href = '/index.html';
+                        }
+                    } else {
+                        alert("Lỗi máy chủ mô phỏng Google!");
+                    }
+                } catch(er) {
+                    alert("Lỗi mạng Mock Oauth: " + er.message);
+                } finally {
+                    btn.innerHTML = 'Đăng nhập nhanh với Google Mock';
+                    btn.disabled = false;
+                }
+            }, 1500); // 1.5s delay để tạo hiệu ứng call api Google
+        };
+    </script>
+</body>
+</html>

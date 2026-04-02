@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Chuyên Gia (Doctor) - Y Tế Số</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+    <nav class="bg-blue-900 border-b border-blue-700 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-black text-white tracking-widest uppercase">Phòng Chuyên Môn Bác Sĩ</h1>
+            <div id="auth-links" class="flex gap-4"></div>
+        </div>
+    </nav>
+
+    <div class="flex-1 max-w-7xl mx-auto p-4 w-full">
+        <!-- Tabs -->
+        <div class="flex gap-4 mb-6 border-b border-slate-300 pb-2">
+            <button onclick="switchTab('tabQ')" class="tab-btn px-6 py-2 bg-blue-600 text-white font-bold rounded-t-xl">Hàng Chờ Đợi Khám</button>
+            <button onclick="switchTab('tabS')" class="tab-btn px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Tạo Khung Lịch Trực</button>
+            <a id="linkMyProfile" href="#" class="px-6 py-2 bg-emerald-500 text-white font-bold rounded-t-xl hover:bg-emerald-600 transition flex items-center gap-2 shadow">👤 Hồ Sơ Cá Nhân</a>
+        </div>
+
+        <!-- TAB 1: DANH SÁCH BỆNH NHÂN CHỜ -->
+        <div id="tabQ" class="tab-content bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 hidden block">
+            <h2 class="text-2xl font-black text-slate-800 mb-6">Ca Lâm Sàng & Hồ Sơ</h2>
+            <div class="overflow-hidden border border-slate-200 rounded-xl">
+                <table class="w-full text-left">
+                    <thead class="bg-blue-100 text-blue-800 font-bold uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Bệnh Nhân</th>
+                            <th class="p-4">Khung Giờ</th>
+                            <th class="p-4">Triệu Chứng Báo Cáo</th>
+                            <th class="p-4">Trạng Thái</th>
+                            <th class="p-4 text-right">Thao Tác Y Khoa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblQueue" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: TẠO LỊCH TRỰC -->
+        <div id="tabS" class="tab-content bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow hidden">
+            <h2 class="text-2xl font-black text-slate-800 mb-6">Mở Khóa Khung Giờ Cấp Lịch</h2>
+
+            <!-- CHỌN NGÀY -->
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-inner mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-2">📅 Chọn Ngày Trực Khám</label>
+                <input type="date" id="sDate" class="w-full md:w-1/3 border-2 border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 font-bold text-lg" required>
+            </div>
+
+            <!-- KHUNG GIỜ HÀNH CHÍNH PRESET -->
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 mb-6">
+                <h3 class="font-black text-blue-800 mb-3">⚡ Chọn Nhanh Khung Giờ Hành Chính</h3>
+                <p class="text-xs text-blue-500 mb-4 font-medium">Bấm vào từng Slot để mở lịch. Có thể bấm nhiều Slot cùng lúc rồi ấn "MỞ TẤT CẢ".</p>
+                <div id="presetSlots" class="flex flex-wrap gap-3 mb-4"></div>
+                <button onclick="submitPresetSlots()" class="bg-blue-600 text-white font-black px-8 py-3 rounded-xl shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 transition transform">📥 MỞ TẤT CẢ SLOT ĐÃ CHỌN</button>
+            </div>
+
+            <!-- HOẶC NHẬP TAY -->
+            <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100 mb-8">
+                <h3 class="font-black text-amber-700 mb-3">✏️ Hoặc Tự Nhập Khung Giờ Tùy Chỉnh</h3>
+                <form id="formSch" class="flex gap-4 items-end">
+                    <div class="flex-1">
+                        <input type="text" id="sTime" class="w-full border-2 border-amber-200 p-3 rounded-xl outline-none focus:border-amber-500 font-bold" placeholder="Ví dụ: 17:00 - 18:00" required>
+                    </div>
+                    <button type="submit" class="bg-amber-500 text-white font-bold px-8 py-3 rounded-xl shadow hover:bg-amber-600 transition">PHÁT HÀNH LỊCH</button>
+                </form>
+            </div>
+            
+            <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">📋 Lịch Trực Đang Mở Gần Đây <span class="text-xs text-red-400 font-medium">(Bấm ✕ để Xóa)</span></h3>
+            <div id="mySchList" class="flex flex-wrap gap-4"></div>
+        </div>
+    </div>
+
+    <!-- MODAL LẬP BỆNH ÁN BIÊN LAI CHUẨN XÁC -->
+    <div id="modalEMR" class="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-2xl relative border-t-8 border-blue-600">
+            <button onclick="document.getElementById('modalEMR').classList.add('hidden')" class="absolute top-4 right-6 text-red-500 font-bold hover:text-red-700 text-xl overflow-hidden">✖</button>
+            
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Ban Hành Bệnh Án Điện Tử (EMR)</h2>
+            <p class="text-slate-500 font-bold mb-6" id="emrTargetText">Bệnh nhân: [TÊN_BN]</p>
+            
+            <form id="formEMR" class="space-y-5">
+                <input type="hidden" id="emrApptId">
+                <input type="hidden" id="emrPatId">
+
+                <div>
+                    <label class="block text-sm font-bold text-blue-600 uppercase mb-2">📝 Kết Luận Chẩn Đoán Bệnh</label>
+                    <textarea id="emrDiagnosis" rows="3" class="w-full p-4 border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500 font-medium" placeholder="Mô tả lâm sàng, kết luận nguyên nhân...?" required></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-emerald-600 uppercase mb-2">💊 Kê Đơn Thuốc & Liệu Trình (Prescription)</label>
+                    <textarea id="emrRX" rows="3" class="w-full p-4 border-2 border-slate-200 rounded-xl outline-none focus:border-emerald-500 font-medium" placeholder="Ví dụ: Panadol xanh 3 viên/ngày. Hướng dẫn nghỉ ngơi..." required></textarea>
+                </div>
+                
+                <button type="submit" id="btnEmrObj" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 hover:-translate-y-1 transition transform">KÝ VÀ TRẢ KẾT QUẢ CHO BỆNH NHÂN</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APIs -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const docUser = checkAuthAndRole('DOCTOR');
+        renderNavbarUser();
+
+        // Gán link profile cho đúng bác sĩ đang đăng nhập
+        document.getElementById('linkMyProfile').href = `/profile.html?id=${docUser._id}`;
+
+        // ------------------ SWITCH TABS ------------------
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.classList.remove('block'); t.classList.add('hidden');
+            });
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.replace('bg-blue-600', 'bg-slate-300'); b.classList.replace('text-white', 'text-slate-700');
+            });
+            document.getElementById(tabId).classList.remove('hidden'); document.getElementById(tabId).classList.add('block');
+            event.target.classList.replace('bg-slate-300', 'bg-blue-600'); event.target.classList.replace('text-slate-700', 'text-white');
+        };
+
+        // ------------------ TAB 1: LẤY LỊCH HẸN BỆNH NHÂN CHỜ MÌNH KHÁM ------------------
+        async function loadDoctorQueue() {
+            const tbl = document.getElementById('tblQueue');
+            try {
+                const appts = await authFetch('/appointments');
+                const myAppts = appts.filter(a => a.doctorId && a.doctorId._id === docUser._id);
+                myAppts.reverse(); // Mới nhất lên đầu
+
+                tbl.innerHTML = '';
+                if(myAppts.length === 0){ tbl.innerHTML = '<tr><td colspan="5" class="p-10 text-center font-bold text-slate-400">Bạn chưa có Bệnh nhân nào đặt lịch khám.</td></tr>'; return;}
+
+                myAppts.forEach(ap => {
+                    const patName = ap.patientId ? ap.patientId.fullName : 'Bệnh Nhân Vô Danh';
+                    const slotStr = ap.scheduleId ? `${ap.scheduleId.timeSlot} | ${new Date(ap.scheduleId.date).toLocaleDateString()}` : 'Lịch quá hạn';
+                    const statusStr = ap.status || 'PENDING';
+                    
+                    let actionBtn = '';
+                    if (statusStr === 'PENDING' || statusStr === 'CONFIRMED') {
+                        // Nút Tới Khám (Vô Khám) -> Bật Modal viết Bệnh án
+                        actionBtn = `<button onclick="openEMR('${ap._id}', '${ap.patientId._id}', '${patName}')" class="px-4 py-2 bg-blue-600 text-white font-bold rounded shadow hover:bg-blue-700 transition">📝 Khám & Viết Bệnh Án</button>`;
+                    } else if (statusStr === 'COMPLETED') {
+                        actionBtn = '<span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold rounded-lg text-sm">✅ Đã Lưu HS</span>';
+                    } else {
+                         actionBtn = '<span class="px-3 py-1 bg-red-100 text-red-700 font-bold rounded-lg text-sm">❌ Đã Hủy</span>';
+                    }
+
+                    tbl.innerHTML += `
+                        <tr class="hover:bg-blue-50 transition border-b border-slate-100 last:border-none">
+                            <td class="p-4 font-bold text-slate-800">${patName}</td>
+                            <td class="p-4"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold">${slotStr}</span></td>
+                            <td class="p-4 italic max-w-xs truncate text-slate-500">${ap.symptoms || '--'}</td>
+                            <td class="p-4"><span class="text-xs uppercase font-black">${statusStr}</span></td>
+                            <td class="p-4 text-right">${actionBtn}</td>
+                        </tr>
+                    `;
+                });
+
+            } catch (error) { tbl.innerHTML = `<tr><td colspan="5" class="p-4 text-red-500">LỖI: ${error.message}</td></tr>`; }
+        }
+
+        // ------------------ TAB 1.5: LOGIC LƯU BỆNH ÁN ------------------
+        window.openEMR = (apptId, patientId, patientName) => {
+            document.getElementById('emrApptId').value = apptId;
+            document.getElementById('emrPatId').value = patientId;
+            document.getElementById('emrTargetText').innerText = `Tên BN: ${patientName} \n ID Trích xuất: ${apptId}`;
+            document.getElementById('formEMR').reset();
+            document.getElementById('modalEMR').classList.remove('hidden');
+        };
+
+        document.getElementById('formEMR').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnEmrObj');
+            try {
+                btn.innerHTML = "ĐANG ĐẨY LÊN CỤC DỮ LIỆU..."; btn.disabled = true;
+                const diag = document.getElementById('emrDiagnosis').value;
+                const rx = document.getElementById('emrRX').value;
+                const apptId = document.getElementById('emrApptId').value;
+                const patId = document.getElementById('emrPatId').value;
+
+                // 1. Lưu Record
+                await fetch(`${API_URL}/medical-records`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({
+                        appointmentId: apptId,
+                        patientId: patId,
+                        doctorId: docUser._id,
+                        diagnosis: diag,
+                        prescription: rx
+                    })
+                });
+
+                // 2. Chuyển Trạng thái Appointment của BN -> COMPLETED
+                await fetch(`${API_URL}/appointments/${apptId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ status: 'COMPLETED' })
+                });
+
+                alert("Tạo Sinh Lăng Y - Bệnh Án Điện Tử Thành Công!");
+                document.getElementById('modalEMR').classList.add('hidden');
+                loadDoctorQueue(); // Load lại bảng
+
+            } catch(er) { alert("Lỗi ghi Bệnh Án: " + er.message); } 
+            finally { btn.innerHTML = "KÝ VÀ TRẢ KẾT QUẢ CHO BỆNH NHÂN"; btn.disabled = false;}
+        });
+
+        // ------------------ PRESET KHUNG GIỜ HÀNH CHÍNH ------------------
+        const PRESET_SLOTS = [
+            '07:30 - 08:00', '08:00 - 08:30', '08:30 - 09:00',
+            '09:00 - 09:30', '09:30 - 10:00', '10:00 - 10:30',
+            '10:30 - 11:00', '11:00 - 11:30',
+            '13:00 - 13:30', '13:30 - 14:00', '14:00 - 14:30',
+            '14:30 - 15:00', '15:00 - 15:30', '15:30 - 16:00',
+            '16:00 - 16:30', '16:30 - 17:00'
+        ];
+        let selectedPresets = new Set();
+
+        function renderPresetButtons() {
+            const box = document.getElementById('presetSlots');
+            box.innerHTML = '';
+            PRESET_SLOTS.forEach(slot => {
+                const isSelected = selectedPresets.has(slot);
+                const cls = isSelected
+                    ? 'bg-blue-600 text-white border-blue-700 ring-2 ring-blue-300 scale-105'
+                    : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-100';
+                box.innerHTML += `<button type="button" onclick="togglePreset('${slot}')" class="px-4 py-2 rounded-xl border-2 font-bold text-sm shadow-sm transition transform ${cls}">${slot}</button>`;
+            });
+        }
+
+        window.togglePreset = (slot) => {
+            if (selectedPresets.has(slot)) selectedPresets.delete(slot);
+            else selectedPresets.add(slot);
+            renderPresetButtons();
+        };
+
+        window.submitPresetSlots = async () => {
+            const dateVal = document.getElementById('sDate').value;
+            if (!dateVal) { alert('Vui lòng chọn Ngày trực trước!'); return; }
+            if (selectedPresets.size === 0) { alert('Hãy bấm chọn ít nhất 1 khung giờ!'); return; }
+
+            let ok = 0, fail = 0;
+            for (const slot of selectedPresets) {
+                try {
+                    await authFetch('/schedules', {
+                        method: 'POST',
+                        body: JSON.stringify({ doctorId: docUser._id, date: dateVal, timeSlot: slot })
+                    });
+                    ok++;
+                } catch(e) { fail++; }
+            }
+            alert(`Đã mở thành công ${ok} khung giờ!` + (fail ? ` (${fail} slot bị lỗi trùng)` : ''));
+            selectedPresets.clear();
+            renderPresetButtons();
+            loadMySchedules();
+        };
+
+        renderPresetButtons(); // Load preset buttons khi trang chạy
+
+        // ------------------ TAB 2: TẠO VÀ LẤY SCHEDULES CHÍNH MÌNH ------------------
+        async function loadMySchedules() {
+            const listObj = document.getElementById('mySchList');
+            try {
+                const sApi = await authFetch('/schedules');
+                const mine = sApi.filter(s => s.doctorId === docUser._id && !s.isDeleted);
+                listObj.innerHTML = '';
+                if (mine.length === 0) { listObj.innerHTML = '<p class="text-slate-400 font-medium">Chưa có ca trực nào được mở.</p>'; return; }
+                mine.forEach(o => {
+                    const isBooked = o.isBooked;
+                    const c = isBooked ? 'bg-red-100 text-red-600 border-red-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                    const ds = new Date(o.date).toLocaleDateString();
+                    const delBtn = isBooked
+                        ? '<span class="text-[10px] text-red-400 mt-1 block">🔒 Đã đặt</span>'
+                        : `<button onclick="deleteSlot('${o._id}')" class="mt-1.5 bg-white border border-red-300 text-red-500 text-[10px] px-2 py-0.5 rounded-lg hover:bg-red-50 font-bold transition shadow-sm">✕ Xóa</button>`;
+                    listObj.innerHTML += `<div class="p-3 border-2 rounded-xl ${c} font-bold text-center w-40 shadow-sm relative">
+                        <p class="text-sm">${o.timeSlot}</p>
+                        <span class="text-xs opacity-70">${ds}</span>
+                        ${delBtn}
+                    </div>`;
+                });
+            } catch(er){}
+        }
+
+        window.deleteSlot = async (id) => {
+            if (!confirm('Xóa khung giờ này khỏi lịch trực?')) return;
+            try {
+                await authFetch(`/schedules/${id}`, { method: 'DELETE' });
+                loadMySchedules();
+            } catch(e) { alert('Lỗi xóa: ' + e.message); }
+        };
+
+        document.getElementById('formSch').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const dateVal = document.getElementById('sDate').value;
+            if (!dateVal) { alert('Vui lòng chọn Ngày trực ở phía trên!'); return; }
+            try {
+                await authFetch('/schedules', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        doctorId: docUser._id,
+                        date: dateVal,
+                        timeSlot: document.getElementById('sTime').value
+                    })
+                });
+                alert("Mở Khung Giờ Thành Công!");
+                document.getElementById('sTime').value = '';
+                loadMySchedules();
+            }catch(er){ alert("LỖI TẠO LỊCH " + er.message); }
+        });
+
+        window.onload = () => {
+            loadDoctorQueue();
+            loadMySchedules();
+        };
+    </script>
+</body>
+</html>

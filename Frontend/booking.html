@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Chuyên Sâu - Chọn Khung Giờ Y Tế</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen">
+    
+    <nav class="bg-blue-600 shadow-xl border-b border-blue-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex-shrink-0"><h1 class="text-2xl font-black text-white px-2 rounded">Y-Tế Số <span class="text-blue-200 uppercase text-xs tracking-widest border border-blue-200 ml-2 px-1">Booking Engine</span></h1></a>
+            <div id="auth-links" class="flex gap-4"></div>
+        </div>
+    </nav>
+
+    <!-- TRÌNH TẠO HỒ SƠ PHỨC TẠP: KHOA > BÁC SĨ > LỊCH -->
+    <div class="max-w-5xl mx-auto px-4 py-12">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col md:flex-row">
+            
+            <!-- PANEL CHỈ BÁO (Bên Trái) -->
+            <div class="w-full md:w-2/5 bg-gradient-to-br from-blue-700 to-blue-900 p-10 text-white flex flex-col justify-between">
+                <div>
+                    <h2 class="text-3xl font-black mb-4">Trình Viện Cảnh</h2>
+                    <p class="text-blue-200 font-medium leading-relaxed mb-8">Nền tảng Tự động trích xuất các khung giờ khám còn trống dựa vào logic quét mảng hai chiều. Khung nào có màu mờ (Red), Tức là bệnh nhân đang chiếm dụng rồi.</p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-4 h-4 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+                            <span class="font-bold text-sm uppercase tracking-wider">Slot Vàng - Cho phép đặt</span>
+                        </div>
+                        <div class="flex items-center gap-3 opacity-60">
+                            <span class="w-4 h-4 rounded-full bg-red-400"></span>
+                            <span class="font-bold text-sm uppercase tracking-wider">Lịch Nóng - Đã bị đặt trước</span>
+                        </div>
+                    </div>
+                </div>
+                <img src="https://cdn-icons-png.flaticon.com/512/2854/2854192.png" class="w-32 mx-auto filter drop-shadow-2xl mt-12 opacity-80">
+            </div>
+
+            <!-- PANEL THỰC THI (Bên Phải) -->
+            <div class="w-full md:w-3/5 p-10 bg-slate-50">
+                <form id="proBookingForm" class="space-y-8">
+                    <!-- Bước 1: Gọi Khoa or Gọi Bác sĩ (Ta gọi Bác sĩ trực tiếp vì index truyền query href="booking.html?doctorId=XXX") -->
+                    <div>
+                        <label class="block text-sm font-black text-blue-600 uppercase tracking-widest mb-3">1. Đối tác Y Tế (Bác Sĩ)</label>
+                        <select id="docSelect" class="w-full px-5 py-4 border-2 border-slate-200 shadow-sm rounded-xl outline-none font-bold text-slate-800 bg-white" required>
+                            <option value="" disabled selected>⏳ Đang đồng bộ danh sách Bác sĩ...</option>
+                        </select>
+                    </div>
+
+                    <!-- Bước 2: Hiển thị Mảng Khung Giờ (Radio Buttons Thay vì Chọn Select Box cho UI sang trọng) -->
+                    <div>
+                        <label class="block text-sm font-black text-blue-600 uppercase tracking-widest mb-3">2. Lịch Hoạt Động Cục Bộ</label>
+                        
+                        <div id="slotsGrid" class="grid grid-cols-2 gap-4">
+                            <p class="col-span-2 text-slate-400 text-sm font-bold bg-slate-100 p-4 rounded-xl text-center border-2 border-dashed border-slate-200">Hãy chọn Bác sĩ ở trên để hệ thống quét Lịch làm việc.</p>
+                        </div>
+                        
+                        <!-- Lưu tạm ID để nhét vào Booking form -->
+                        <input type="hidden" id="selectedScheduleId" required> 
+                    </div>
+
+                    <!-- Bước 3 -->
+                    <div>
+                        <label class="block text-sm font-black text-blue-600 uppercase tracking-widest mb-3">3. Phiếu Chỉ Định Triệu Chứng</label>
+                        <textarea id="patSymptoms" rows="3" class="w-full px-5 py-4 bg-white border-2 border-slate-200 rounded-xl shadow-sm outline-none font-medium focus:border-blue-500" placeholder="Biểu hiện bệnh lý của anh/chị?"></textarea>
+                    </div>
+
+                    <button type="submit" id="btnSubmitEngine" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl text-xl shadow-xl hover:bg-blue-700 hover:scale-[1.01] transition-transform">PHÁT HÀNH PHIẾU KHÁM MỚI</button>
+                    <!-- Báo lỗi đỏ -->
+                    <p id="errorBox" class="hidden mt-4 text-center text-sm font-bold text-red-600 p-3 bg-red-50 border border-red-200 rounded-lg"></p>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- API -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const patUser = checkAuthAndRole('PATIENT');
+        renderNavbarUser();
+
+        // Check nếu index truyền sang mã Bác sĩ từ bấm nút: booking.html?doctorId=123
+        const urlParams = new URLSearchParams(window.location.search);
+        const prefilledDocId = urlParams.get('doctorId');
+
+        const docSelect = document.getElementById('docSelect');
+        const slotsGrid = document.getElementById('slotsGrid');
+        const hiddenSch = document.getElementById('selectedScheduleId');
+        const errBox = document.getElementById('errorBox');
+
+        async function loadDoctorsDropdown() {
+            try {
+                // Fetch toàn bộ bác sĩ
+                const res = await authFetch('/users?role=DOCTOR&limit=50');
+                docSelect.innerHTML = '<option value="" disabled selected>👉 Bước chọn Bác Sĩ thụ lý</option>';
+                
+                res.users.forEach(d => {
+                    const selCode = (prefilledDocId && prefilledDocId === d._id) ? "selected" : "";
+                    docSelect.innerHTML += `<option class="font-bold py-2" value="${d._id}" ${selCode}>Bs. ${d.fullName || d.username} (${d.department || 'Đa Khoa'})</option>`;
+                });
+
+                // Nếu có prefill, nổ luôn hàm quét lịch
+                if(prefilledDocId) docSelect.dispatchEvent(new Event('change'));
+
+            } catch (e) {
+                docSelect.innerHTML = '<option value="">Lỗi Network API Cốt!</option>';
+            }
+        }
+
+        // --- ĐÂY LÀ ĐÁP ÁN CHO ADVANCED LOGIC HIỂN THỊ DISABLED ---
+        docSelect.addEventListener('change', async (e) => {
+            const docId = e.target.value;
+            if(!docId) return;
+
+            slotsGrid.innerHTML = '<p class="col-span-2 text-blue-600 font-bold p-4 text-center">⏳ Vi xử lý đang quét lịch trống Backend...</p>';
+            hiddenSch.value = ''; // xóa slot cũ
+
+            try {
+                const allScheds = await authFetch('/schedules');
+                // Lọc ra các lịch TẤT CẢ trạng thái nhưng của đúng Bác sĩ này
+                const myDocs = allScheds.filter(s => s.doctorId === docId);
+
+                slotsGrid.innerHTML = '';
+                if(myDocs.length === 0){
+                    slotsGrid.innerHTML = '<p class="col-span-2 text-slate-500 font-bold p-4 text-center bg-slate-200 rounded-xl">🔒 Bác sĩ này đang chưa sắp lịch trực.</p>';
+                    return;
+                }
+
+                // Render Slot UI có khóa IsBooked Nâng Cao
+                myDocs.forEach(sch => {
+                    const dString = new Date(sch.date).toLocaleDateString();
+                    
+                    if(sch.isBooked) {
+                        // NẾU LỊCH SẬP (isBooked = TRUE) => Cảnh báo (Block/Disabled UI)
+                        slotsGrid.innerHTML += `
+                        <div class="relative p-4 border border-red-200 bg-red-50 rounded-xl opacity-60 cursor-not-allowed">
+                            <span class="block text-red-600 font-black text-xs uppercase mb-1">Kín Chỗ ❌</span>
+                            <span class="block font-bold mt-2 text-slate-700">${sch.timeSlot}</span>
+                            <span class="block text-xs font-medium text-slate-500 mt-1">${dString}</span>
+                        </div>`;
+                    } else {
+                        // NẾU LỊCH TRỐNG (isBooked = FALSE) => Cho Click
+                        slotsGrid.innerHTML += `
+                        <label class="relative p-4 border-2 border-slate-200 bg-white rounded-xl shadow-sm cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition group">
+                            <input type="radio" name="slot" value="${sch._id}" class="absolute top-4 right-4 text-emerald-600 w-5 h-5 cursor-pointer accent-emerald-500" required>
+                            <span class="block text-emerald-600 font-black text-xs uppercase mb-1">Mở Đặt ✅</span>
+                            <span class="block font-black mt-2 text-slate-800 text-lg group-hover:text-emerald-700">${sch.timeSlot}</span>
+                            <span class="block text-sm font-medium text-slate-500 mt-1">${dString}</span>
+                        </label>`;
+                    }
+                });
+
+                // Listen thay đổi Radio ném value vào hidden input để Validation HTML tự lo
+                document.querySelectorAll('input[name="slot"]').forEach(rad => {
+                    rad.addEventListener('change', (ev) => {
+                        hiddenSch.value = ev.target.value;
+                        errBox.classList.add('hidden'); // tắt lỗi ảo
+                    });
+                });
+
+            } catch (e) {
+                slotsGrid.innerHTML = '<p class="col-span-2 text-red-600 font-bold p-4 text-center bg-red-100 rounded-xl">Lỗi hệ Server</p>';
+            }
+        });
+
+        // Bắn Lên API POST Nâng cao (Bắt Array Error Cực Gắt)
+        document.getElementById('proBookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errBox.classList.add('hidden');
+            errBox.innerText = "";
+
+            if (!hiddenSch.value) {
+                errBox.innerText = "BẠN CHƯA STICK VÀO Ô LỊCH NÀO (PHẢI CÓ DẤU √ MÀU XANH)!";
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitEngine');
+            try {
+                btn.innerHTML = 'HỆ THỐNG KIỂM TRA CHÉO LOGIC TRÙNG LỊCH...'; btn.disabled = true;
+
+                // POST Data API
+                const payload = {
+                    patientId: patUser.id || patUser._id,
+                    doctorId: docSelect.value,
+                    scheduleId: hiddenSch.value,
+                    symptoms: document.getElementById('patSymptoms').value
+                };
+
+                const res = await fetch(`${API_URL}/appointments`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                     },
+                    body: JSON.stringify(payload)
+                });
+                
+                const returnData = await res.json();
+
+                if (!res.ok) {
+                    // Logic chống trùng lịch Backend văng Error về đây! Bắn thẳng ra Box Đỏ cảnh báo cho người dùng! (Đáp ứng đúng Yêu Cầu 1)
+                    errBox.innerText = "🛑 HỆ THỐNG CHẶN KẾT NỐI: " + (returnData.error || returnData.message);
+                    errBox.classList.remove('hidden');
+                } else {
+                    // Thành công
+                    alert("Đặt Lịch Cấp Cao thành công! Khung giờ Database tự chuyển trạng thái Kín.");
+                    window.location.href = "dashboard.html";
+                }
+
+            } catch(er) {
+                errBox.innerText = "📛 Lỗi Chết Mạng Cục Bộ: " + er.message;
+                errBox.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = 'PHÁT HÀNH PHIẾU KHÁM MỚI'; btn.disabled = false;
+            }
+        });
+
+        window.onload = loadDoctorsDropdown;
+    </script>
+</body>
+</html>

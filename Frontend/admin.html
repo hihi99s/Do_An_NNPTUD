@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng Điều Khiển Chỉ Huy Admin - Y Tế Số</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+
+    <nav class="bg-rose-900 border-b border-rose-700 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-black text-white tracking-widest uppercase">Trung Tâm Kiểm Soát Tổng Thể (ADMIN)</h1>
+            <div id="auth-links" class="flex gap-4"></div>
+        </div>
+    </nav>
+
+    <div class="flex-1 max-w-7xl mx-auto p-4 w-full">
+        <!-- ĐA TABS CHUYÊN MÔN -->
+        <div class="flex gap-4 mb-6 border-b border-slate-300 pb-2">
+            <button onclick="switchAdminTab('tabDr')" class="tab-ad px-6 py-2 bg-rose-600 text-white font-bold rounded-t-xl">Tuyển Dụng Bác Sĩ & Tài Khoản</button>
+            <button onclick="switchAdminTab('tabSp')" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Danh Mục Chuyên Khoa</button>
+            <button onclick="switchAdminTab('tabBn')" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Marketing & Banners</button>
+        </div>
+
+        <!-- TAB 1: NHÂN SỰ -->
+        <div id="tabDr" class="ad-page bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 block">
+            <h2 class="text-2xl font-black text-slate-800 mb-6 border-l-4 border-rose-500 pl-4">Thêm Nhân Sự Mới</h2>
+            <form id="formUser" class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-inner mb-10 grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Username (Chính)</label>
+                    <input type="text" id="uUsername" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-rose-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Password (Cấp phát)</label>
+                    <input type="password" id="uPass" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Email Công cụ</label>
+                    <input type="email" id="uEmail" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Họ Tên Hoàn Chỉnh</label>
+                    <input type="text" id="uFullName" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Phân Quyền (Role)</label>
+                    <select id="uRole" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 bg-white">
+                        <option value="DOCTOR" selected>DOCTOR (Tuyển Bác sĩ)</option>
+                        <option value="ADMIN">ADMIN (Cộng sự Admin)</option>
+                        <option value="PATIENT">PATIENT (Bệnh nhân VIP)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Chuyên Khoa (Gắn ID)</label>
+                    <select id="cbbSp" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 bg-white text-blue-700 font-bold"><option>Đang quét...</option></select>
+                </div>
+                <div class="col-span-2 flex gap-4">
+                    <input type="file" id="uAvatar" class="flex-1 border p-2 rounded-lg bg-white file:border-0 file:bg-blue-50 file:text-blue-700 file:font-semibold file:px-4 file:py-2 file:rounded-lg">
+                    <button type="submit" class="bg-rose-600 text-white font-bold px-8 rounded-lg shadow hover:bg-rose-700">TẠO HỒ SƠ LƯNG Y</button>
+                    <input type="hidden" id="uImageUrl"> <!-- Chứa link vừa upload -->
+                </div>
+            </form>
+
+            <h2 class="text-2xl font-black text-slate-800 mb-6">Bảng Trưởng Khoa Lực Lượng Nhân Sự</h2>
+            <div class="overflow-x-auto rounded-xl border border-slate-200"><table class="w-full text-left"><thead class="bg-rose-50 text-rose-800 font-bold uppercase text-xs"><tr>
+                <th class="p-4">Hình Ấn</th><th class="p-4">Danh Xưng</th><th class="p-4">Khoa Trực Thuộc</th><th class="p-4">Email Liên Hệ</th><th class="p-4 text-center">Bãi Nhiệm</th>
+            </tr></thead><tbody id="tblUsers" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody></table></div>
+        </div>
+
+        <!-- TAB 2: DANH MỤC CHUYÊN KHOA -->
+        <div id="tabSp" class="ad-page bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 hidden">
+            <h2 class="text-2xl font-black text-blue-800 mb-6 border-l-4 border-blue-500 pl-4">Khởi Tạo Khoa Học Mới</h2>
+            <form id="formSp" class="bg-blue-50 p-6 rounded-2xl border border-blue-100 flex gap-4 items-end mb-10">
+                <div class="flex-1"><label class="block text-sm font-bold text-blue-800 mb-1">Tên Khoa Chính Thức</label><input type="text" id="spName" class="w-full p-3 rounded-xl border outline-none" required></div>
+                <div class="flex-1"><label class="block text-sm font-bold text-blue-800 mb-1">Mô Tả Nhanh</label><input type="text" id="spDesc" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div class="flex-1"><label class="block text-sm font-bold text-blue-800 mb-1">URL Hình Đại Diện Trực Tiếp</label><input type="text" id="spImg" value="https://cdn-icons-png.flaticon.com/512/3209/3209114.png" class="w-full p-3 rounded-xl border outline-none text-xs"></div>
+                <button type="submit" class="bg-blue-600 text-white font-bold px-8 py-3 rounded-xl hover:bg-blue-700">THÀNH LẬP</button>
+            </form>
+            <div id="listSp" class="grid grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- TAB 3: MARKETING BANNERS -->
+        <div id="tabBn" class="ad-page bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 hidden">
+            <h2 class="text-2xl font-black text-amber-600 mb-6 border-l-4 border-amber-500 pl-4">Phát Sóng Banner Trang Chủ</h2>
+            <form id="formBn" class="bg-amber-50 p-6 rounded-2xl border border-amber-100 flex flex-col md:flex-row gap-4 items-end mb-10">
+                <div class="flex-1"><label class="block text-sm font-bold text-amber-800 mb-1">Mô tả File / Chiến dịch</label><input type="text" id="bnTitle" class="w-full p-3 rounded-xl border outline-none" required></div>
+                <div class="flex-[2]"><label class="block text-sm font-bold text-amber-800 mb-1">URL Hình Ảnh To (Độ Phân giải cao)</label><input type="text" id="bnImg" class="w-full p-3 rounded-xl border outline-none font-mono text-xs" required placeholder="https://domain.com/hinh.jpg"></div>
+                <button type="submit" class="bg-amber-500 text-white font-bold px-8 py-3 rounded-xl hover:bg-amber-600 shadow-md">ĐƯA LÊN WEB</button>
+            </form>
+            <div class="bg-slate-100 p-6 rounded-xl"><p class="font-bold text-center text-slate-500 mb-4">Danh Sách Banner Đang Hoạt Động (Carousel)</p><div id="listBn" class="grid grid-cols-2 gap-4"></div></div>
+        </div>
+
+    </div>
+
+    <!-- APIs -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuthAndRole('ADMIN');
+        renderNavbarUser();
+
+        window.switchAdminTab = (tid) => {
+            document.querySelectorAll('.ad-page').forEach(e => { e.classList.remove('block'); e.classList.add('hidden'); });
+            document.querySelectorAll('.tab-ad').forEach(e => { e.classList.replace('bg-rose-600', 'bg-slate-300'); e.classList.replace('text-white', 'text-slate-700'); });
+            document.getElementById(tid).classList.replace('hidden', 'block');
+            event.target.classList.replace('bg-slate-300', 'bg-rose-600'); event.target.classList.replace('text-slate-700', 'text-white');
+        };
+
+        // ================= TAB 1: NHÂN SỰ & CHUYÊN KHOA =================
+        async function loadComboKhoaVaoSelectBox() {
+            try {
+                const res = await authFetch('/specialties');
+                const box = document.getElementById('cbbSp'); box.innerHTML = '';
+                res.forEach(k => box.innerHTML += `<option value="${k._id}">${k.name}</option>`);
+            } catch(e) {}
+        }
+
+        async function loadUsersGrid() {
+            try {
+                const data = await authFetch('/users?limit=40&role=DOCTOR'); // Pagination Mới -> bọc trong data.users
+                const tb = document.getElementById('tblUsers'); tb.innerHTML = '';
+                data.users.forEach(u => {
+                    const avatar = u.imageUrl || 'https://cdn-icons-png.flaticon.com/512/3750/3750486.png';
+                    tb.innerHTML += `<tr class="border-b last:border-none hover:bg-rose-50">
+                        <td class="p-3"><img src="${avatar}" class="w-12 h-12 rounded-lg object-cover shadow border border-slate-200"></td>
+                        <td class="p-3 font-bold text-rose-900">${u.fullName || u.username} <span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded text-xs ml-2">${u.role}</span></td>
+                        <td class="p-3 text-sm text-slate-500">${u.specialtyId ? u.specialtyId.name : 'Không rõ Khoa'}</td>
+                        <td class="p-3 italic max-w-xs truncate">${u.email}</td>
+                        <td class="p-3 text-center"><button onclick="delUser('${u._id}')" class="bg-white border border-red-200 text-red-500 px-3 py-1 rounded shadow hover:bg-red-50 text-sm font-bold transition">Tước Lệnh</button></td></tr>`;
+                });
+            } catch (e) { alert("Lỗi tải Nhân sự: "+e.message); }
+        }
+
+        document.getElementById('formUser').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Upfile Upload Trước tiên
+            const fBtn = document.getElementById('uAvatar');
+            let finalImage = 'https://cdn-icons-png.flaticon.com/512/3750/3750486.png';
+            if (fBtn.files.length > 0) {
+                const frmData = new FormData(); frmData.append('file', fBtn.files[0]);
+                try {
+                    const uplObj = await fetch(`${API_URL}/upload`, { method: 'POST', body: frmData }).then(r=>r.json());
+                    if(uplObj.url) finalImage = uplObj.url;
+                } catch(eu) { return alert("Upload Hỏng: "+eu.message); }
+            }
+
+            try {
+                await authFetch('/users', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username: document.getElementById('uUsername').value,
+                        password: document.getElementById('uPass').value,
+                        email: document.getElementById('uEmail').value,
+                        fullName: document.getElementById('uFullName').value,
+                        role: document.getElementById('uRole').value,
+                        specialtyId: document.getElementById('cbbSp').value,
+                        imageUrl: finalImage
+                    })
+                });
+                alert("Đã kết nạp tài khoản Chuyên Môn Thành Công");
+                e.target.reset(); loadUsersGrid();
+            } catch (er) { alert("Tạo thất bại: " + er.message); }
+        });
+
+        window.delUser = async (id) => {
+            if(!confirm("Bãi nhiệm khóa sổ ông bác sĩ này? Hành động này sẽ Soft-Delete.")) return;
+            try { await authFetch(`/users/${id}`, { method: 'DELETE' }); loadUsersGrid(); } catch(e){}
+        };
+
+        // ================= TAB 2: SPECIALTIES KHOA =================
+        async function loadGridKhoa(){
+            try {
+                const rx = await authFetch('/specialties');
+                const bd = document.getElementById('listSp'); bd.innerHTML='';
+                rx.forEach(k => bd.innerHTML += `<div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-center gap-4"><img src="${k.imageUrl}" class="w-10 h-10 object-contain"><div class="flex-1"><h4 class="font-bold text-blue-900">${k.name}</h4><p class="text-xs text-blue-600 truncate">${k.description||''}</p></div></div>`);
+            }catch(e){}
+        }
+
+        document.getElementById('formSp').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await authFetch('/specialties', { method: 'POST', body: JSON.stringify({ name: document.getElementById('spName').value, description: document.getElementById('spDesc').value, imageUrl: document.getElementById('spImg').value}) });
+                alert("Khoa thành lập thành công!"); e.target.reset(); loadGridKhoa(); loadComboKhoaVaoSelectBox();
+            } catch(e) {alert(e.message)}
+        });
+
+        // ================= TAB 3: BANNERS =================
+        async function loadGridBanners(){
+            try {
+                const bn = await authFetch('/banners');
+                const bb = document.getElementById('listBn'); bb.innerHTML='';
+                bn.forEach(k => bb.innerHTML += `<div class="relative rounded-lg overflow-hidden border shadow h-32 flex items-end p-3"><img src="${k.imageUrl}" class="absolute inset-0 w-full h-full object-cover z-0 opacity-50"><h4 class="relative z-10 font-bold bg-black/50 text-white px-2 py-1 rounded w-full backdrop-blur truncate">${k.title}</h4></div>`);
+            }catch(e){}
+        }
+
+        document.getElementById('formBn').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await authFetch('/banners', { method: 'POST', body: JSON.stringify({ title: document.getElementById('bnTitle').value, imageUrl: document.getElementById('bnImg').value, isActive: true }) });
+                alert("Đăng Quảng Cáo Lên Web Thành Công!"); e.target.reset(); loadGridBanners();
+            } catch(e) {alert(e.message)}
+        });
+
+        window.onload = () => {
+            loadComboKhoaVaoSelectBox();
+            loadUsersGrid();
+            loadGridKhoa();
+            loadGridBanners();
+        };
+    </script>
+</body>
+</html>
