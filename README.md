@@ -91,7 +91,6 @@ Truy cập: `http://localhost:3000`
 ---
 
 ## 📧 Liên Hệ & Bản Quyền
-- **Dự án:** Đồ án Môn học Nhập môn Phát triển Ứng dụng Di động.
 - **Bản quyền:** © 2026 MedicalBooking Team.
 
 ---

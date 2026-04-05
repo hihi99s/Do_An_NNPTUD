@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phòng Điều Khiển Chỉ Huy Admin - Y Tế Số</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50; justify-content:center; align-items:center; }
+        .modal-overlay.active { display:flex; }
+        .modal-box { background:#fff; border-radius:1.5rem; padding:2rem; min-width:420px; max-width:560px; width:90%; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex flex-col">
 
@@ -17,10 +22,12 @@
 
     <div class="flex-1 max-w-7xl mx-auto p-4 w-full">
         <!-- ĐA TABS CHUYÊN MÔN -->
-        <div class="flex gap-4 mb-6 border-b border-slate-300 pb-2">
-            <button onclick="switchAdminTab('tabDr')" class="tab-ad px-6 py-2 bg-rose-600 text-white font-bold rounded-t-xl">Tuyển Dụng Bác Sĩ & Tài Khoản</button>
-            <button onclick="switchAdminTab('tabSp')" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Danh Mục Chuyên Khoa</button>
-            <button onclick="switchAdminTab('tabBn')" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Marketing & Banners</button>
+        <div class="flex gap-4 mb-6 border-b border-slate-300 pb-2 flex-wrap">
+            <button onclick="switchAdminTab('tabDr', this)" class="tab-ad px-6 py-2 bg-rose-600 text-white font-bold rounded-t-xl">Tuyển Dụng Bác Sĩ & Tài Khoản</button>
+            <button onclick="switchAdminTab('tabSp', this)" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Danh Mục Chuyên Khoa</button>
+            <button onclick="switchAdminTab('tabBn', this)" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Marketing & Banners</button>
+            <button onclick="switchAdminTab('tabRole', this)" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Quản Lý Vai Trò</button>
+            <button onclick="switchAdminTab('tabPay', this)" class="tab-ad px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Quản Lý Thanh Toán</button>
         </div>
 
         <!-- TAB 1: NHÂN SỰ -->
@@ -77,7 +84,7 @@
                 <div class="flex-1"><label class="block text-sm font-bold text-blue-800 mb-1">URL Hình Đại Diện Trực Tiếp</label><input type="text" id="spImg" value="https://cdn-icons-png.flaticon.com/512/3209/3209114.png" class="w-full p-3 rounded-xl border outline-none text-xs"></div>
                 <button type="submit" class="bg-blue-600 text-white font-bold px-8 py-3 rounded-xl hover:bg-blue-700">THÀNH LẬP</button>
             </form>
-            <div id="listSp" class="grid grid-cols-3 gap-6"></div>
+            <div id="listSp" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
         <!-- TAB 3: MARKETING BANNERS -->
@@ -88,9 +95,134 @@
                 <div class="flex-[2]"><label class="block text-sm font-bold text-amber-800 mb-1">URL Hình Ảnh To (Độ Phân giải cao)</label><input type="text" id="bnImg" class="w-full p-3 rounded-xl border outline-none font-mono text-xs" required placeholder="https://domain.com/hinh.jpg"></div>
                 <button type="submit" class="bg-amber-500 text-white font-bold px-8 py-3 rounded-xl hover:bg-amber-600 shadow-md">ĐƯA LÊN WEB</button>
             </form>
-            <div class="bg-slate-100 p-6 rounded-xl"><p class="font-bold text-center text-slate-500 mb-4">Danh Sách Banner Đang Hoạt Động (Carousel)</p><div id="listBn" class="grid grid-cols-2 gap-4"></div></div>
+            <div class="bg-slate-100 p-6 rounded-xl"><p class="font-bold text-center text-slate-500 mb-4 uppercase tracking-tighter">Bộ sưu tập Banner hiện hữu</p><div id="listBn" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div></div>
         </div>
 
+        <!-- TAB 4: QUẢN LÝ VAI TRÒ (ROLE) -->
+        <div id="tabRole" class="ad-page bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 hidden">
+            <h2 class="text-2xl font-black text-emerald-800 mb-6 border-l-4 border-emerald-500 pl-4">Quản Lý Vai Trò Hệ Thống</h2>
+            <form id="formRole" class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex gap-4 items-end mb-10">
+                <div class="flex-1"><label class="block text-sm font-bold text-emerald-800 mb-1">Tên Vai Trò</label><input type="text" id="roleName" class="w-full p-3 rounded-xl border outline-none" required placeholder="VD: ADMIN, DOCTOR, PATIENT"></div>
+                <div class="flex-1"><label class="block text-sm font-bold text-emerald-800 mb-1">Mô Tả</label><input type="text" id="roleDesc" class="w-full p-3 rounded-xl border outline-none" placeholder="Mô tả vai trò..."></div>
+                <button type="submit" class="bg-emerald-600 text-white font-bold px-8 py-3 rounded-xl hover:bg-emerald-700 shadow-md">TẠO MỚI</button>
+            </form>
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-left">
+                    <thead class="bg-emerald-50 text-emerald-800 font-bold uppercase text-xs">
+                        <tr><th class="p-4">Tên Vai Trò</th><th class="p-4">Mô Tả</th><th class="p-4">Ngày Tạo</th><th class="p-4 text-center">Thao Tác</th></tr>
+                    </thead>
+                    <tbody id="tblRoles" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 5: QUẢN LÝ THANH TOÁN (PAYMENT) -->
+        <div id="tabPay" class="ad-page bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 hidden">
+            <h2 class="text-2xl font-black text-violet-800 mb-6 border-l-4 border-violet-500 pl-4">Quản Lý Thanh Toán</h2>
+            <form id="formPayment" class="bg-violet-50 p-6 rounded-2xl border border-violet-100 grid grid-cols-2 md:grid-cols-5 gap-4 items-end mb-10">
+                <div><label class="block text-sm font-bold text-violet-800 mb-1">Ca Khám Chưa Trả Tiền</label>
+                    <select id="payAppointmentId" onchange="autoFillPayData()" class="w-full p-3 rounded-xl border outline-none bg-white font-bold text-blue-700">
+                        <option value="">-- Chọn Ca Khám --</option>
+                    </select>
+                </div>
+                <div><label class="block text-sm font-bold text-violet-800 mb-1">Patient ID</label><input type="text" id="payPatientId" class="w-full p-3 rounded-xl border outline-none" required></div>
+                <div><label class="block text-sm font-bold text-violet-800 mb-1">Số Tiền (VND)</label><input type="number" id="payAmount" class="w-full p-3 rounded-xl border outline-none" required></div>
+                <div><label class="block text-sm font-bold text-violet-800 mb-1">Phương Thức</label>
+                    <select id="payMethod" class="w-full p-3 rounded-xl border outline-none bg-white">
+                        <option value="CASH">CASH (Tiền mặt)</option>
+                        <option value="TRANSFER">TRANSFER (Chuyển khoản)</option>
+                    </select>
+                </div>
+                <div><button type="submit" class="w-full bg-violet-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-violet-700 shadow-md">TẠO THANH TOÁN</button></div>
+            </form>
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-left">
+                    <thead class="bg-violet-50 text-violet-800 font-bold uppercase text-xs">
+                        <tr><th class="p-4">ID</th><th class="p-4">Appointment</th><th class="p-4">Patient</th><th class="p-4">Số Tiền</th><th class="p-4">Phương Thức</th><th class="p-4">Trạng Thái</th><th class="p-4 text-center">Thao Tác</th></tr>
+                    </thead>
+                    <tbody id="tblPayments" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========== MODAL SỬA CHUYÊN KHOA ========== -->
+    <div id="modalSp" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-blue-800 mb-4">Cập Nhật Chuyên Khoa</h3>
+            <input type="hidden" id="editSpId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Tên Khoa</label><input type="text" id="editSpName" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Mô Tả</label><input type="text" id="editSpDesc" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">URL Hình</label><input type="text" id="editSpImg" class="w-full p-3 rounded-xl border outline-none text-xs"></div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="closeModal('modalSp')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditSp()" class="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL SỬA BANNER ========== -->
+    <div id="modalBn" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-amber-700 mb-4">Cập Nhật Banner</h3>
+            <input type="hidden" id="editBnId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Tiêu Đề / Chiến dịch</label><input type="text" id="editBnTitle" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">URL Hình Ảnh</label><input type="text" id="editBnImg" class="w-full p-3 rounded-xl border outline-none text-xs"></div>
+                <div class="flex items-center gap-2"><input type="checkbox" id="editBnActive" class="w-5 h-5"><label class="font-bold text-slate-700">Đang Hoạt Động (Active)</label></div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="closeModal('modalBn')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditBn()" class="px-6 py-2 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL SỬA ROLE ========== -->
+    <div id="modalRole" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-emerald-800 mb-4">Cập Nhật Vai Trò</h3>
+            <input type="hidden" id="editRoleId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Tên Vai Trò</label><input type="text" id="editRoleName" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Mô Tả</label><input type="text" id="editRoleDesc" class="w-full p-3 rounded-xl border outline-none"></div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="closeModal('modalRole')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditRole()" class="px-6 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL SỬA PAYMENT ========== -->
+    <div id="modalPay" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-violet-800 mb-4">Cập Nhật Thanh Toán</h3>
+            <input type="hidden" id="editPayId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Số Tiền (VND)</label><input type="number" id="editPayAmount" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Phương Thức</label>
+                    <select id="editPayMethod" class="w-full p-3 rounded-xl border outline-none bg-white">
+                        <option value="CASH">CASH (Tiền mặt)</option>
+                        <option value="TRANSFER">TRANSFER (Chuyển khoản)</option>
+                    </select>
+                </div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Trạng Thái</label>
+                    <select id="editPayStatus" class="w-full p-3 rounded-xl border outline-none bg-white">
+                        <option value="UNPAID">UNPAID (Chưa thanh toán)</option>
+                        <option value="PAID">PAID (Đã thanh toán)</option>
+                        <option value="CANCELLED">CANCELLED (Đã hủy)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="closeModal('modalPay')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditPay()" class="px-6 py-2 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700">Lưu Thay Đổi</button>
+            </div>
+        </div>
     </div>
 
     <!-- APIs -->
@@ -100,11 +232,19 @@
         checkAuthAndRole('ADMIN');
         renderNavbarUser();
 
-        window.switchAdminTab = (tid) => {
+        // ================= MODAL UTILS =================
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // ================= TAB SWITCHING =================
+        window.switchAdminTab = (tid, btn) => {
             document.querySelectorAll('.ad-page').forEach(e => { e.classList.remove('block'); e.classList.add('hidden'); });
             document.querySelectorAll('.tab-ad').forEach(e => { e.classList.replace('bg-rose-600', 'bg-slate-300'); e.classList.replace('text-white', 'text-slate-700'); });
-            document.getElementById(tid).classList.replace('hidden', 'block');
-            event.target.classList.replace('bg-slate-300', 'bg-rose-600'); event.target.classList.replace('text-slate-700', 'text-white');
+            document.getElementById(tid).classList.remove('hidden');
+            document.getElementById(tid).classList.add('block');
+            btn.classList.replace('bg-slate-300', 'bg-rose-600'); btn.classList.replace('text-slate-700', 'text-white');
+
+            if(tid === 'tabPay') loadPendingAppointmentsToPay();
         };
 
         // ================= TAB 1: NHÂN SỰ & CHUYÊN KHOA =================
@@ -118,7 +258,7 @@
 
         async function loadUsersGrid() {
             try {
-                const data = await authFetch('/users?limit=40&role=DOCTOR'); // Pagination Mới -> bọc trong data.users
+                const data = await authFetch('/users?limit=40&role=DOCTOR');
                 const tb = document.getElementById('tblUsers'); tb.innerHTML = '';
                 data.users.forEach(u => {
                     const avatar = u.imageUrl || 'https://cdn-icons-png.flaticon.com/512/3750/3750486.png';
@@ -127,14 +267,15 @@
                         <td class="p-3 font-bold text-rose-900">${u.fullName || u.username} <span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded text-xs ml-2">${u.role}</span></td>
                         <td class="p-3 text-sm text-slate-500">${u.specialtyId ? u.specialtyId.name : 'Không rõ Khoa'}</td>
                         <td class="p-3 italic max-w-xs truncate">${u.email}</td>
-                        <td class="p-3 text-center"><button onclick="delUser('${u._id}')" class="bg-white border border-red-200 text-red-500 px-3 py-1 rounded shadow hover:bg-red-50 text-sm font-bold transition">Tước Lệnh</button></td></tr>`;
+                        <td class="p-3 text-center">
+                            <button onclick="delUser('${u._id}')" class="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-1.5 rounded-lg shadow-sm hover:bg-rose-600 hover:text-white text-xs font-black transition-all">TÀI HỒI QUYỀN</button>
+                        </td></tr>`;
                 });
             } catch (e) { alert("Lỗi tải Nhân sự: "+e.message); }
         }
 
         document.getElementById('formUser').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Upfile Upload Trước tiên
             const fBtn = document.getElementById('uAvatar');
             let finalImage = 'https://cdn-icons-png.flaticon.com/512/3750/3750486.png';
             if (fBtn.files.length > 0) {
@@ -146,6 +287,11 @@
             }
 
             try {
+                const spVal = document.getElementById('cbbSp').value;
+                if (spVal === 'Đang quét...' || !spVal) {
+                    return alert("Vui lòng đợi danh sách Chuyên Khoa tải xong hoặc chọn một khoa hợp lệ!");
+                }
+
                 await authFetch('/users', {
                     method: 'POST',
                     body: JSON.stringify({
@@ -154,11 +300,11 @@
                         email: document.getElementById('uEmail').value,
                         fullName: document.getElementById('uFullName').value,
                         role: document.getElementById('uRole').value,
-                        specialtyId: document.getElementById('cbbSp').value,
+                        specialtyId: spVal,
                         imageUrl: finalImage
                     })
                 });
-                alert("Đã kết nạp tài khoản Chuyên Môn Thành Công");
+                alert("KẾT NẠP THÀNH CÔNG: Tài khoản và Hồ sơ chuyên môn đã sẵn sàng hoạt động!");
                 e.target.reset(); loadUsersGrid();
             } catch (er) { alert("Tạo thất bại: " + er.message); }
         });
@@ -168,12 +314,22 @@
             try { await authFetch(`/users/${id}`, { method: 'DELETE' }); loadUsersGrid(); } catch(e){}
         };
 
-        // ================= TAB 2: SPECIALTIES KHOA =================
+        // ================= TAB 2: SPECIALTIES KHOA (C/R/U/D) =================
         async function loadGridKhoa(){
             try {
                 const rx = await authFetch('/specialties');
                 const bd = document.getElementById('listSp'); bd.innerHTML='';
-                rx.forEach(k => bd.innerHTML += `<div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-center gap-4"><img src="${k.imageUrl}" class="w-10 h-10 object-contain"><div class="flex-1"><h4 class="font-bold text-blue-900">${k.name}</h4><p class="text-xs text-blue-600 truncate">${k.description||''}</p></div></div>`);
+                rx.forEach(k => bd.innerHTML += `<div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+                    <img src="${k.imageUrl}" class="w-12 h-12 flex-shrink-0 object-contain bg-white rounded-lg p-1 border border-blue-100">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-blue-900 truncate" title="${k.name}">${k.name}</h4>
+                        <p class="text-xs text-blue-600 truncate" title="${k.description||''}">${k.description||''}</p>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button onclick="openEditSp('${k._id}','${k.name.replace(/'/g,"\\'")}','${(k.description||'').replace(/'/g,"\\'")}','${k.imageUrl}')" class="bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-black hover:bg-blue-600 transition shadow-sm">Sửa</button>
+                        <button onclick="delSp('${k._id}')" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-black hover:bg-red-600 transition shadow-sm">Xóa</button>
+                    </div>
+                </div>`);
             }catch(e){}
         }
 
@@ -185,12 +341,52 @@
             } catch(e) {alert(e.message)}
         });
 
-        // ================= TAB 3: BANNERS =================
+        // UPDATE Specialty
+        window.openEditSp = (id, name, desc, img) => {
+            document.getElementById('editSpId').value = id;
+            document.getElementById('editSpName').value = name;
+            document.getElementById('editSpDesc').value = desc;
+            document.getElementById('editSpImg').value = img;
+            openModal('modalSp');
+        };
+        window.submitEditSp = async () => {
+            const id = document.getElementById('editSpId').value;
+            try {
+                await authFetch(`/specialties/${id}`, { method: 'PUT', body: JSON.stringify({
+                    name: document.getElementById('editSpName').value,
+                    description: document.getElementById('editSpDesc').value,
+                    imageUrl: document.getElementById('editSpImg').value
+                })});
+                alert("Cập nhật Chuyên Khoa thành công!"); closeModal('modalSp'); loadGridKhoa(); loadComboKhoaVaoSelectBox();
+            } catch(e) { alert("Lỗi cập nhật: "+e.message); }
+        };
+
+        // DELETE Specialty
+        window.delSp = async (id) => {
+            if(!confirm("Xác nhận Xóa chuyên khoa này? (Soft-Delete)")) return;
+            try { 
+                const res = await authFetch(`/specialties/${id}`, { method: 'DELETE' });
+                console.log("Delete Specialty Result:", res);
+                await loadGridKhoa(); 
+                loadComboKhoaVaoSelectBox(); 
+            } catch(e){ alert("Lỗi xóa: " + e.message); }
+        };
+
+        // ================= TAB 3: BANNERS (C/R/U/D) =================
         async function loadGridBanners(){
             try {
                 const bn = await authFetch('/banners');
                 const bb = document.getElementById('listBn'); bb.innerHTML='';
-                bn.forEach(k => bb.innerHTML += `<div class="relative rounded-lg overflow-hidden border shadow h-32 flex items-end p-3"><img src="${k.imageUrl}" class="absolute inset-0 w-full h-full object-cover z-0 opacity-50"><h4 class="relative z-10 font-bold bg-black/50 text-white px-2 py-1 rounded w-full backdrop-blur truncate">${k.title}</h4></div>`);
+                bn.forEach(k => bb.innerHTML += `<div class="relative rounded-2xl overflow-hidden border border-slate-200 shadow-md h-48 flex flex-col justify-end p-5 group">
+                    <img src="${k.imageUrl}" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+                    <h4 class="relative z-20 font-black text-white text-lg mb-2 truncate" title="${k.title}">${k.title}</h4>
+                    <div class="relative z-20 flex gap-3 items-center">
+                        <button onclick="openEditBn('${k._id}','${(k.title||'').replace(/'/g,"\\'")}','${k.imageUrl}',${k.isActive})" class="bg-amber-500 text-white px-4 py-1.5 rounded-lg text-xs font-black hover:bg-amber-600 transition shadow-lg">Sửa</button>
+                        <button onclick="delBn('${k._id}')" class="bg-red-500 text-white px-4 py-1.5 rounded-lg text-xs font-black hover:bg-red-600 transition shadow-lg">Xóa</button>
+                        <span class="ml-auto text-[10px] font-black uppercase px-2 py-1 rounded bg-white/20 text-white backdrop-blur-sm border border-white/30">${k.isActive ? '● Đang chạy' : '○ Tạm dừng'}</span>
+                    </div>
+                </div>`);
             }catch(e){}
         }
 
@@ -202,11 +398,263 @@
             } catch(e) {alert(e.message)}
         });
 
+        // UPDATE Banner
+        window.openEditBn = (id, title, img, isActive) => {
+            document.getElementById('editBnId').value = id;
+            document.getElementById('editBnTitle').value = title;
+            document.getElementById('editBnImg').value = img;
+            document.getElementById('editBnActive').checked = isActive;
+            openModal('modalBn');
+        };
+        window.submitEditBn = async () => {
+            const id = document.getElementById('editBnId').value;
+            try {
+                await authFetch(`/banners/${id}`, { method: 'PUT', body: JSON.stringify({
+                    title: document.getElementById('editBnTitle').value,
+                    imageUrl: document.getElementById('editBnImg').value,
+                    isActive: document.getElementById('editBnActive').checked
+                })});
+                alert("Cập nhật Banner thành công!"); closeModal('modalBn'); loadGridBanners();
+            } catch(e) { alert("Lỗi cập nhật: "+e.message); }
+        };
+
+        // DELETE Banner
+        window.delBn = async (id) => {
+            if(!confirm("Xác nhận Xóa banner này? (Soft-Delete)")) return;
+            try { 
+                const res = await authFetch(`/banners/${id}`, { method: 'DELETE' });
+                console.log("Delete Banner Success:", res);
+                loadGridBanners(); 
+            } catch(e){ alert("Lỗi xóa banner: " + e.message); }
+        };
+
+        // ================= TAB 4: ROLES (C/R/U/D) =================
+        async function loadGridRoles(){
+            try {
+                const roles = await authFetch('/roles');
+                const tb = document.getElementById('tblRoles'); tb.innerHTML='';
+                roles.forEach(r => {
+                    const d = new Date(r.createdAt).toLocaleDateString('vi-VN');
+                    tb.innerHTML += `<tr class="border-b last:border-none hover:bg-emerald-50">
+                        <td class="p-4 font-bold text-emerald-900">${r.name}</td>
+                        <td class="p-4 text-sm text-slate-500">${r.description||'—'}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button onclick="openEditRole('${r._id}','${r.name.replace(/'/g,"\\'")}','${(r.description||'').replace(/'/g,"\\'")}')" class="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-emerald-600 transition shadow-sm">SỬA</button>
+                                <button onclick="delRole('${r._id}')" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-red-600 transition shadow-sm">XÓA</button>
+                            </div>
+                        </td></tr>`;
+                });
+            }catch(e){ alert("Lỗi tải Roles: "+e.message); }
+        }
+
+        document.getElementById('formRole').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const name = document.getElementById('roleName').value.trim();
+                const desc = document.getElementById('roleDesc').value.trim();
+                if(!name) return alert("Vui lòng nhập tên Role");
+                
+                await authFetch('/roles', { method: 'POST', body: JSON.stringify({ name, description: desc })});
+                alert("Tạo Vai Trò thành công!"); 
+                e.target.reset(); 
+                loadGridRoles();
+            } catch(e) { 
+                console.error("Role Create Error:", e);
+                alert("Lỗi tạo Role: " + e.message); 
+            }
+        });
+
+        // UPDATE Role
+        window.openEditRole = (id, name, desc) => {
+            document.getElementById('editRoleId').value = id;
+            document.getElementById('editRoleName').value = name;
+            document.getElementById('editRoleDesc').value = desc;
+            openModal('modalRole');
+        };
+        window.submitEditRole = async () => {
+            const id = document.getElementById('editRoleId').value;
+            try {
+                await authFetch(`/roles/${id}`, { method: 'PUT', body: JSON.stringify({
+                    name: document.getElementById('editRoleName').value,
+                    description: document.getElementById('editRoleDesc').value
+                })});
+                alert("Cập nhật Vai Trò thành công!"); 
+                closeModal('modalRole'); 
+                loadGridRoles();
+            } catch(e) { alert("Lỗi cập nhật: " + e.message); }
+        };
+
+        // DELETE Role
+        window.delRole = async (id) => {
+            if(!confirm("Xác nhận Xóa vai trò này? (Soft-Delete)")) return;
+            try { 
+                await authFetch(`/roles/${id}`, { method: 'DELETE' }); 
+                alert("Đã xóa Role thành công!");
+                loadGridRoles(); 
+            } catch(e){ alert("Lỗi xóa: " + e.message); }
+        };
+
+        // ================= TAB 5: PAYMENTS (C/R/U/D) =================
+        async function loadGridPayments(){
+            try {
+                const pays = await authFetch('/payments');
+                const tb = document.getElementById('tblPayments'); tb.innerHTML='';
+                pays.forEach(p => {
+                    const statusColor = p.status === 'PAID' ? 'bg-green-100 text-green-800' : p.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800';
+                    tb.innerHTML += `<tr class="border-b last:border-none hover:bg-violet-50">
+                        <td class="p-4 text-xs font-mono text-slate-400">${p._id.slice(-6)}</td>
+                        <td class="p-4 text-xs font-mono">${p.appointmentId?._id?.slice(-6) || p.appointmentId?.toString().slice(-6) || '—'}</td>
+                        <td class="p-4 text-sm">${p.patientId?.fullName || p.patientId?.username || p.patientId?.toString().slice(-6) || '—'}</td>
+                        <td class="p-4 font-bold text-violet-800">${Number(p.amount).toLocaleString('vi-VN')} ₫</td>
+                        <td class="p-4 text-sm">${p.paymentMethod}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button onclick="openEditPay('${p._id}',${p.amount},'${p.paymentMethod}','${p.status}')" class="bg-violet-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-violet-600 transition shadow-sm">SỬA</button>
+                                <button onclick="delPay('${p._id}')" class="bg-red-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-red-600 transition shadow-sm">XÓA</button>
+                            </div>
+                        </td></tr>`;
+                });
+            }catch(e){ alert("Lỗi tải Payments: "+e.message); }
+        }
+
+        document.getElementById('formPayment').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await authFetch('/payments', { method: 'POST', body: JSON.stringify({
+                    appointmentId: document.getElementById('payAppointmentId').value,
+                    patientId: document.getElementById('payPatientId').value,
+                    amount: Number(document.getElementById('payAmount').value),
+                    paymentMethod: document.getElementById('payMethod').value,
+                    status: 'PAID'
+                })});
+                alert("Đã thu tiền và lưu lịch sử thanh toán thành công!"); 
+                e.target.reset(); 
+                document.getElementById('payPatientId').value = '';
+                document.getElementById('payAmount').value = '';
+                await Promise.all([loadGridPayments(), loadPendingAppointmentsToPay()]);
+            } catch(e) { alert(e.message); }
+        });
+
+        // UPDATE Payment
+        window.openEditPay = (id, amount, method, status) => {
+            document.getElementById('editPayId').value = id;
+            document.getElementById('editPayAmount').value = amount;
+            document.getElementById('editPayMethod').value = method;
+            document.getElementById('editPayStatus').value = status;
+            openModal('modalPay');
+        };
+        window.submitEditPay = async () => {
+            const id = document.getElementById('editPayId').value;
+            try {
+                await authFetch(`/payments/${id}`, { method: 'PUT', body: JSON.stringify({
+                    amount: Number(document.getElementById('editPayAmount').value),
+                    paymentMethod: document.getElementById('editPayMethod').value,
+                    status: document.getElementById('editPayStatus').value
+                })});
+                alert("Cập nhật Thanh Toán thành công!"); closeModal('modalPay'); loadGridPayments();
+            } catch(e) { alert("Lỗi cập nhật: "+e.message); }
+        };
+
+        // DELETE Payment
+        window.delPay = async (id) => {
+            if(!confirm("Xác nhận Xóa thanh toán này? (Soft-Delete)")) return;
+            try { await authFetch(`/payments/${id}`, { method: 'DELETE' }); loadGridPayments(); } catch(e){ alert(e.message); }
+        };
+
+
+        // ================= TAB 5: PAYMENTS AUTOMATION =================
+        let pendingPayMap = {}; // Lưu thông tin map Appointment -> Patient, Price
+
+        async function loadPendingAppointmentsToPay() {
+            const select = document.getElementById('payAppointmentId');
+            select.innerHTML = '<option value="">-- Quét Ca Nợ... --</option>';
+            try {
+                const [appts, recs, pays, drInfos] = await Promise.all([
+                    authFetch('/appointments'),
+                    authFetch('/medical-records'),
+                    authFetch('/payments'),
+                    authFetch('/doctor-info')
+                ]);
+
+                // Map giá tiền bác sĩ
+                const prices = {};
+                drInfos.forEach(i => {
+                    const uid = (i.userId && i.userId._id) ? i.userId._id : i.userId;
+                    prices[uid] = i.price || 150000;
+                });
+
+                // Lọc ca COMPLETED đã có bệnh án nhưng chưa PAID
+                const finishedAppts = appts.filter(a => a.status === 'COMPLETED' && !a.isDeleted);
+                const hasRecordIds = new Set(recs.map(r => r.appointmentId));
+                const paidApptIds = new Set(pays.filter(p => p.status === 'PAID' && !p.isDeleted).map(p => {
+                    return (p.appointmentId && p.appointmentId._id) ? p.appointmentId._id : p.appointmentId;
+                }));
+
+                const unpaid = finishedAppts.filter(a => hasRecordIds.has(a._id) && !paidApptIds.has(a._id));
+
+                select.innerHTML = `<option value="">-- Chọn Ca Khám (${unpaid.length}) --</option>`;
+                pendingPayMap = {};
+                unpaid.forEach(a => {
+                    const pId = a.patientId?._id || a.patientId;
+                    const price = prices[a.doctorId?._id] || 150000;
+                    const patName = a.patientId?.fullName || a.patientId?.username || 'Bệnh nhân ẩn danh';
+                    const docName = a.doctorId?.fullName || 'Bác sĩ';
+                    
+                    pendingPayMap[a._id] = { patientId: pId, price: price };
+                    select.innerHTML += `<option value="${a._id}">${patName} (Khám: ${docName}) - Mã: ${a._id.substr(-6)}</option>`;
+                });
+            } catch(e) { select.innerHTML = '<option value="">Lỗi nạp dữ liệu</option>'; }
+        }
+
+        window.autoFillPayData = () => {
+            const aid = document.getElementById('payAppointmentId').value;
+            if (pendingPayMap[aid]) {
+                document.getElementById('payPatientId').value = pendingPayMap[aid].patientId;
+                document.getElementById('payAmount').value = pendingPayMap[aid].price;
+            } else {
+                document.getElementById('payPatientId').value = '';
+                document.getElementById('payAmount').value = '';
+            }
+        };
+
+        window.printReceipt = async (payId) => {
+            try {
+                const pays = await authFetch('/payments');
+                const p = pays.find(x => x._id === payId);
+                if(!p) return alert("Không tìm thấy dữ liệu thanh toán!");
+
+                const printWin = window.open('', '_blank', 'width=400,height=600');
+                const html = `
+                    <html><head><title>Biên Lai</title><style>
+                        body { font-family: 'Courier New', Courier, monospace; padding: 20px; line-height: 1.2; font-size: 14px; }
+                        .header { text-align: center; margin-bottom: 20px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+                        .row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                        .total { border-top: 1px solid #000; margin-top: 10px; padding-top: 10px; font-weight: bold; font-size: 18px; }
+                    </style></head>
+                    <body onload="window.print(); window.close();">
+                        <div class="header"><h2 style="margin:0">MEDBOOKING RECEIPT</h2><small>Mã: ${p._id}</small></div>
+                        <div class="row"><span>Ngày:</span> <span>${new Date(p.createdAt).toLocaleString()}</span></div>
+                        <div class="row"><span>Bệnh nhân:</span> <span>${p.patientId?.fullName || p.patientId?.username || '—'}</span></div>
+                        <div class="row"><span>Phương thức:</span> <span>${p.paymentMethod}</span></div>
+                        <div class="total"><div class="row"><span>TỔNG TIỀN:</span> <span>${p.amount.toLocaleString()} VND</span></div></div>
+                        <p style="text-align:center; margin-top:30px; font-size:10px">--- Cảm ơn bạn! ---</p>
+                    </body></html>
+                `;
+                printWin.document.write(html);
+                printWin.document.close();
+            } catch(e) { alert("Lỗi in: " + e.message); }
+        };
+
+        // ================= LOAD ALL ON START =================
         window.onload = () => {
-            loadComboKhoaVaoSelectBox();
             loadUsersGrid();
             loadGridKhoa();
+            loadComboKhoaVaoSelectBox();
             loadGridBanners();
+            loadGridRoles();
+            loadGridPayments();
+            loadPendingAppointmentsToPay();
         };
     </script>
 </body>

@@ -1,4 +1,5 @@
 const MedicalRecord = require('../schemas/medicalRecords');
+require('../schemas/users'); // Đảm bảo model User đã đăng ký cho populate
 
 const CreateMedicalRecord = async (data) => {
   const newMedicalRecord = new MedicalRecord(data);
@@ -10,7 +11,16 @@ const FindByID = async (id) => {
 };
 
 const getAllMedicalRecords = async () => {
-  return await MedicalRecord.find({ isDeleted: false });
+  const mongoose = require('mongoose');
+  // Đảm bảo model User được khởi tạo để populate không bị lỗi
+  if (!mongoose.models.User) {
+    require('../schemas/users');
+  }
+  
+  return await MedicalRecord.find({ isDeleted: false })
+    .populate('patientId', 'fullName username')
+    .populate('doctorId', 'fullName')
+    .lean();
 };
 
 const updateMedicalRecord = async (id, data) => {

@@ -10,7 +10,7 @@ const FindByID = async (id) => {
 };
 
 const getAllDoctorInfos = async () => {
-  return await DoctorInfo.find({ isDeleted: false });
+  return await DoctorInfo.find({ isDeleted: false }).populate('userId specialtyId');
 };
 
 const updateDoctorInfo = async (id, data) => {

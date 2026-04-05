@@ -1,0 +1,746 @@
+{
+  "info": {
+    "name": "MedicalBooking API (Đã điền sẵn Body)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Xác thực (Auth)",
+      "item": [
+        {
+          "name": "Đăng nhập",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin@gmail.com\",\n  \"password\": \"123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tải file (Upload)",
+      "item": [
+        {
+          "name": "Tải file lên hệ thống",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/upload",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Người dùng (Users)",
+      "item": [
+        {
+          "name": "Lấy tất cả người dùng",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/users",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy người dùng theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/users/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo người dùng mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/users",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nguyenvana\",\n  \"password\": \"123\",\n  \"email\": \"vana@example.com\",\n  \"fullName\": \"Nguyễn Văn A\",\n  \"role\": \"PATIENT\",\n  \"department\": \"Khoa Nội Chuyên Sâu\",\n  \"imageUrl\": \"https://cdn-icons-png.flaticon.com/512/3750/3750486.png\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật người dùng",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/users/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nguyenvana\",\n  \"password\": \"123\",\n  \"email\": \"vana@example.com\",\n  \"fullName\": \"Nguyễn Văn A\",\n  \"role\": \"PATIENT\",\n  \"department\": \"Khoa Nội Chuyên Sâu\",\n  \"imageUrl\": \"https://cdn-icons-png.flaticon.com/512/3750/3750486.png\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa người dùng",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/users/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quản trị viên (Admin)",
+      "item": [
+        {
+          "name": "Lấy tất cả quản trị viên",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/admin",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy quản trị viên theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/admin/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo quản trị viên mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/admin",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin01\",\n  \"password\": \"123\",\n  \"email\": \"admin01@example.com\",\n  \"fullName\": \"Quản trị viên\",\n  \"role\": \"ADMIN\",\n  \"department\": \"\",\n  \"imageUrl\": \"https://cdn-icons-png.flaticon.com/512/3750/3750486.png\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật quản trị viên",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/admin/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin01\",\n  \"password\": \"123\",\n  \"email\": \"admin01@example.com\",\n  \"fullName\": \"Quản trị viên\",\n  \"role\": \"ADMIN\",\n  \"department\": \"\",\n  \"imageUrl\": \"https://cdn-icons-png.flaticon.com/512/3750/3750486.png\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa quản trị viên",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/admin/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cuộc hẹn (Appointments)",
+      "item": [
+        {
+          "name": "Lấy tất cả cuộc hẹn",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/appointments",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy cuộc hẹn theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/appointments/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo cuộc hẹn mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/appointments",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"603d2b... (Thay ID người bệnh)\",\n  \"doctorId\": \"603d2c... (Thay ID bác sĩ)\",\n  \"scheduleId\": \"603d2d... (Thay ID lịch khám)\",\n  \"symptoms\": \"Đau đầu, sốt cao\",\n  \"status\": \"PENDING\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật cuộc hẹn",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/appointments/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"603d2b... (Thay ID người bệnh)\",\n  \"doctorId\": \"603d2c... (Thay ID bác sĩ)\",\n  \"scheduleId\": \"603d2d... (Thay ID lịch khám)\",\n  \"symptoms\": \"Đau đầu, sốt cao\",\n  \"status\": \"PENDING\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa cuộc hẹn",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/appointments/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lịch khám (Schedules)",
+      "item": [
+        {
+          "name": "Lấy tất cả lịch khám",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/schedules",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy lịch khám theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/schedules/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo lịch khám mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/schedules",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"603d2c... (Thay ID bác sĩ)\",\n  \"date\": \"2024-05-20\",\n  \"timeSlot\": \"08:00 - 09:00\",\n  \"isBooked\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật lịch khám",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/schedules/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"603d2c... (Thay ID bác sĩ)\",\n  \"date\": \"2024-05-20\",\n  \"timeSlot\": \"08:00 - 09:00\",\n  \"isBooked\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa lịch khám",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/schedules/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Thông tin bác sĩ (Doctor Infos)",
+      "item": [
+        {
+          "name": "Lấy tất cả thông tin bác sĩ",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/doctor-info",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy thông tin bác sĩ theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/doctor-info/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo thông tin bác sĩ mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/doctor-info",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"603d2c... (Thay ID Bác sĩ)\",\n  \"specialtyId\": \"603d2e... (Thay ID Chuyên khoa)\",\n  \"experience_years\": 5,\n  \"price\": 250000,\n  \"description\": \"Bác sĩ ưu tú có nhiều năm kinh nghiệm tại bệnh viện lớn.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật thông tin bác sĩ",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/doctor-info/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"603d2c... (Thay ID Bác sĩ)\",\n  \"specialtyId\": \"603d2e... (Thay ID Chuyên khoa)\",\n  \"experience_years\": 5,\n  \"price\": 250000,\n  \"description\": \"Bác sĩ ưu tú có nhiều năm kinh nghiệm tại bệnh viện lớn.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa thông tin bác sĩ",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/doctor-info/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chuyên khoa (Specialties)",
+      "item": [
+        {
+          "name": "Lấy tất cả chuyên khoa",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/specialties",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy chuyên khoa theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/specialties/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo chuyên khoa mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/specialties",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Khoa Tim Mạch\",\n  \"description\": \"Chuyên điều trị các bệnh lý về tim.\",\n  \"imageUrl\": \"https://example.com/tim-mach.jpg\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật chuyên khoa",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/specialties/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Khoa Tim Mạch\",\n  \"description\": \"Chuyên điều trị các bệnh lý về tim.\",\n  \"imageUrl\": \"https://example.com/tim-mach.jpg\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa chuyên khoa",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/specialties/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hồ sơ bệnh án (Medical Records)",
+      "item": [
+        {
+          "name": "Lấy tất cả hồ sơ bệnh án",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/medical-records",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy hồ sơ bệnh án theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/medical-records/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo hồ sơ bệnh án mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/medical-records",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"603d2f... (Thay ID Cuộc hẹn)\",\n  \"patientId\": \"603d2b... (Thay ID Người bệnh)\",\n  \"doctorId\": \"603d2c... (Thay ID Bác sĩ)\",\n  \"diagnosis\": \"Sốt virus\",\n  \"prescription\": \"Uống thuốc đúng liều ngày 2 lần\",\n  \"attachmentUrl\": \"https://example.com/don-thuoc.pdf\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật hồ sơ bệnh án",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/medical-records/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"603d2f... (Thay ID Cuộc hẹn)\",\n  \"patientId\": \"603d2b... (Thay ID Người bệnh)\",\n  \"doctorId\": \"603d2c... (Thay ID Bác sĩ)\",\n  \"diagnosis\": \"Sốt virus\",\n  \"prescription\": \"Uống thuốc đúng liều ngày 2 lần\",\n  \"attachmentUrl\": \"https://example.com/don-thuoc.pdf\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa hồ sơ bệnh án",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/medical-records/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Thanh toán (Payments)",
+      "item": [
+        {
+          "name": "Lấy tất cả thanh toán",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/payments",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy thanh toán theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/payments/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo thanh toán mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/payments",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"603d2f... (Thay ID Cuộc hẹn)\",\n  \"patientId\": \"603d2b... (Thay ID Người bệnh)\",\n  \"amount\": 250000,\n  \"paymentMethod\": \"TRANSFER\",\n  \"status\": \"PAID\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật thanh toán",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/payments/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"603d2f... (Thay ID Cuộc hẹn)\",\n  \"patientId\": \"603d2b... (Thay ID Người bệnh)\",\n  \"amount\": 250000,\n  \"paymentMethod\": \"TRANSFER\",\n  \"status\": \"PAID\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa thanh toán",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/payments/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Đánh giá (Reviews)",
+      "item": [
+        {
+          "name": "Lấy tất cả đánh giá",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/reviews",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy đánh giá theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/reviews/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo đánh giá mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/reviews",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"603d2f... (Thay ID Cuộc hẹn)\",\n  \"patientId\": \"603d2b... (Thay ID Người bệnh)\",\n  \"doctorId\": \"603d2c... (Thay ID Bác sĩ)\",\n  \"rating\": 5,\n  \"comment\": \"Bác sĩ rất thân thiện và chu đáo!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật đánh giá",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/reviews/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"603d2f... (Thay ID Cuộc hẹn)\",\n  \"patientId\": \"603d2b... (Thay ID Người bệnh)\",\n  \"doctorId\": \"603d2c... (Thay ID Bác sĩ)\",\n  \"rating\": 5,\n  \"comment\": \"Bác sĩ rất thân thiện và chu đáo!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa đánh giá",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/reviews/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Biểu ngữ quảng cáo (Banners)",
+      "item": [
+        {
+          "name": "Lấy tất cả biểu ngữ quảng cáo",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/banners",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy biểu ngữ quảng cáo theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/banners/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo biểu ngữ quảng cáo mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/banners",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chương trình khám sức khỏe tổng quát\",\n  \"imageUrl\": \"https://example.com/banner-summer.jpg\",\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật biểu ngữ quảng cáo",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/banners/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chương trình khám sức khỏe tổng quát\",\n  \"imageUrl\": \"https://example.com/banner-summer.jpg\",\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa biểu ngữ quảng cáo",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/banners/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vai trò (Roles)",
+      "item": [
+        {
+          "name": "Lấy tất cả vai trò",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/roles",
+            "header": []
+          }
+        },
+        {
+          "name": "Lấy vai trò theo ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/roles/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Tạo vai trò mới",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/roles",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ADMIN\",\n  \"description\": \"Người quản trị tối cao của hệ thống\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật vai trò",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/roles/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ADMIN\",\n  \"description\": \"Người quản trị tối cao của hệ thống\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa vai trò",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/roles/:id",
+            "header": []
+          }
+        }
+      ]
+    }
+  ]
+}

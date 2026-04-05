@@ -26,9 +26,9 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const result = await userController.CreateUser(req.body);
-    res.send(result);
+    res.status(201).send(result);
   } catch (error) {
-    res.send({ error: error.message });
+    res.status(400).send({ error: error.message });
   }
 });
 

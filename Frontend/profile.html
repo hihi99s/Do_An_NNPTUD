@@ -91,6 +91,7 @@
                             <textarea id="eDesc" rows="4" class="w-full border-2 border-blue-200 p-3 rounded-xl outline-none focus:border-blue-500 font-medium"></textarea>
                         </div>
                         <button type="submit" class="bg-blue-600 text-white font-black px-8 py-3 rounded-xl shadow-lg hover:bg-blue-700 transition">💾 CẬP NHẬT PROFILE</button>
+                        <button type="button" onclick="deleteDoctorInfo()" class="bg-red-500 text-white font-black px-8 py-3 rounded-xl shadow-lg hover:bg-red-600 transition">🗑 XÓA PROFILE CHI TIẾT</button>
                     </form>
                 </div>
 
@@ -143,12 +144,18 @@
                 const doc = await authFetch(`/users/${doctorId}`);
                 document.getElementById('pAvatar').src = doc.imageUrl || 'https://cdn-icons-png.flaticon.com/512/3750/3750486.png';
                 document.getElementById('pName').innerText = doc.fullName || doc.username;
-                document.getElementById('pDept').innerText = doc.specialtyId ? doc.specialtyId.name : (doc.department || 'Đa Khoa');
+                document.getElementById('pDept').innerText = (doc.specialtyId && typeof doc.specialtyId === 'object') 
+                    ? (doc.specialtyId.name || 'Hệ Thống') 
+                    : (doc.department || 'Đa Khoa');
                 document.title = `${doc.fullName} - Y Tế Số`;
 
                 // 2. Lấy DoctorInfo Nâng Cao (experience, price, description)
                 const allInfos = await authFetch('/doctor-info');
-                const myInfo = allInfos.find(i => i.userId === doctorId || (i.userId && i.userId._id === doctorId));
+                // So sánh linh hoạt cả ID string và Object Populate
+                const myInfo = allInfos.find(i => {
+                    const infoUserId = (i.userId && typeof i.userId === 'object') ? i.userId._id : i.userId;
+                    return infoUserId === doctorId;
+                });
                 
                 if (myInfo) {
                     doctorInfoId = myInfo._id;
@@ -160,7 +167,7 @@
                     document.getElementById('ePrice').value = myInfo.price || 150000;
                     document.getElementById('eDesc').value = myInfo.description || '';
                 } else {
-                    document.getElementById('pExp').innerText = '--';
+                    document.getElementById('pExp').innerText = '0';
                     document.getElementById('pPrice').innerText = '150,000';
                     document.getElementById('pDesc').innerText = 'Bác sĩ chưa thiết lập hồ sơ chi tiết. Hãy liên hệ bệnh viện để biết thêm.';
                 }
@@ -194,9 +201,40 @@
                     rvBox.innerHTML = '<p class="text-slate-400 font-medium text-center py-6">Chưa có đánh giá nào.</p>';
                 }
 
-                // 4. Lấy Lịch Khám
-                const allScheds = await authFetch('/schedules');
-                const docScheds = allScheds.filter(s => s.doctorId === doctorId && !s.isDeleted);
+                // 4. Lấy Lịch Khám (Bổ sung lọc quá ngày ở Frontend để chắc chắn)
+                const getAllSchedules = async () => {
+                  const now = new Date();
+                  
+                  // Lấy tất cả chưa bị xóa để lọc chính xác bằng code (tránh lệch timezone $gte)
+                  const rawSchedules = await authFetch('/schedules');
+
+                  return rawSchedules.filter(s => {
+                    const sDate = new Date(s.date);
+                    
+                    // Tạo format YYYYMMDD để so sánh số học
+                    const d1 = sDate.getFullYear() * 10000 + (sDate.getMonth() + 1) * 100 + sDate.getDate();
+                    const d2 = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+
+                    if (d1 < d2) return false; // Quá khứ -> Ẩn
+                    if (d1 > d2) return true;  // Tương lai -> Hiện
+
+                    // Nếu là hôm nay, kiểm tra timeSlot (08:00 - 09:00)
+                    try {
+                      const startTimeStr = s.timeSlot.split(' - ')[0];
+                      const [h, m] = startTimeStr.split(':').map(Number);
+                      const slotTime = new Date();
+                      slotTime.setHours(h, m, 0, 0);
+                      return slotTime > now; 
+                    } catch(e) {
+                      return true;
+                    }
+                  });
+                };
+
+                const docScheds = (await getAllSchedules()).filter(s => {
+                    return s.doctorId === doctorId || (s.doctorId && s.doctorId._id === doctorId);
+                });
+                
                 const schBox = document.getElementById('scheduleList');
                 
                 if (docScheds.length > 0) {
@@ -284,6 +322,17 @@
                 btn.disabled = false;
             }
         });
+
+        // ================== XÓA DOCTOR INFO ==================
+        window.deleteDoctorInfo = async () => {
+            if (!doctorInfoId) { alert('Chưa có thông tin chi tiết để xóa!'); return; }
+            if (!confirm('Xác nhận xóa toàn bộ thông tin chi tiết (kinh nghiệm, giá khám, mô tả)?')) return;
+            try {
+                await authFetch(`/doctor-info/${doctorInfoId}`, { method: 'DELETE' });
+                alert('Đã xóa thông tin chi tiết thành công!');
+                location.reload();
+            } catch(e) { alert('Lỗi xóa: ' + e.message); }
+        };
 
         window.onload = loadDoctorProfile;
     </script>

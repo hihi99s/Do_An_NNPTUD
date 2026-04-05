@@ -1,0 +1,746 @@
+{
+  "info": {
+    "name": "MedicalBooking API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"123456\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/upload",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/users",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Users By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/users/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Users",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/users",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Users",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/users/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Users",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/users/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get All Admin",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/admin",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Admin By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/admin/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/admin",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Admin",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/admin/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Admin",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/admin/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Get All Appointments",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/appointments",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Appointments By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/appointments/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Appointments",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/appointments",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Appointments",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/appointments/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Appointments",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/appointments/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Schedules",
+      "item": [
+        {
+          "name": "Get All Schedules",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/schedules",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Schedules By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/schedules/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Schedules",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/schedules",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Schedules",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/schedules/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Schedules",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/schedules/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Doctor Infos",
+      "item": [
+        {
+          "name": "Get All Doctor Infos",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/doctor-info",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Doctor Infos By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/doctor-info/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Doctor Infos",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/doctor-info",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Doctor Infos",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/doctor-info/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Doctor Infos",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/doctor-info/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Specialties",
+      "item": [
+        {
+          "name": "Get All Specialties",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/specialties",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Specialties By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/specialties/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Specialties",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/specialties",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Specialties",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/specialties/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Specialties",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/specialties/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Medical Records",
+      "item": [
+        {
+          "name": "Get All Medical Records",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/medical-records",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Medical Records By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/medical-records/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Medical Records",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/medical-records",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Medical Records",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/medical-records/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Medical Records",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/medical-records/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get All Payments",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/payments",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Payments By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/payments/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Payments",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/payments",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Payments",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/payments/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Payments",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/payments/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get All Reviews",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/reviews",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Reviews By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/reviews/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Reviews",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/reviews",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Reviews",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/reviews/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Reviews",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/reviews/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Banners",
+      "item": [
+        {
+          "name": "Get All Banners",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/banners",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Banners By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/banners/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Banners",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/banners",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Banners",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/banners/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Banners",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/banners/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/roles",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Roles By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:3000/roles/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Roles",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:3000/roles",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Roles",
+          "request": {
+            "method": "PUT",
+            "url": "http://localhost:3000/roles/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Roles",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:3000/roles/:id",
+            "header": []
+          }
+        }
+      ]
+    }
+  ]
+}

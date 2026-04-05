@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Chuyên Gia (Doctor) - Y Tế Số</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50; justify-content:center; align-items:center; }
+        .modal-overlay.active { display:flex; }
+        .modal-box { background:#fff; border-radius:1.5rem; padding:2rem; min-width:400px; max-width:540px; width:90%; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex flex-col">
     <nav class="bg-blue-900 border-b border-blue-700 shadow-md">
@@ -17,13 +22,14 @@
     <div class="flex-1 max-w-7xl mx-auto p-4 w-full">
         <!-- Tabs -->
         <div class="flex gap-4 mb-6 border-b border-slate-300 pb-2">
-            <button onclick="switchTab('tabQ')" class="tab-btn px-6 py-2 bg-blue-600 text-white font-bold rounded-t-xl">Hàng Chờ Đợi Khám</button>
-            <button onclick="switchTab('tabS')" class="tab-btn px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Tạo Khung Lịch Trực</button>
+            <button onclick="switchTab('tabQ', this)" class="tab-btn px-6 py-2 bg-blue-600 text-white font-bold rounded-t-xl">Hàng Chờ Đợi Khám</button>
+            <button onclick="switchTab('tabS', this)" class="tab-btn px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Tạo Khung Lịch Trực</button>
+            <button onclick="switchTab('tabEMRList', this)" class="tab-btn px-6 py-2 bg-slate-300 text-slate-700 font-bold rounded-t-xl hover:bg-slate-400">Quản Lý Bệnh Án</button>
             <a id="linkMyProfile" href="#" class="px-6 py-2 bg-emerald-500 text-white font-bold rounded-t-xl hover:bg-emerald-600 transition flex items-center gap-2 shadow">👤 Hồ Sơ Cá Nhân</a>
         </div>
 
         <!-- TAB 1: DANH SÁCH BỆNH NHÂN CHỜ -->
-        <div id="tabQ" class="tab-content bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 hidden block">
+        <div id="tabQ" class="tab-content bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow mb-8 block">
             <h2 class="text-2xl font-black text-slate-800 mb-6">Ca Lâm Sàng & Hồ Sơ</h2>
             <div class="overflow-hidden border border-slate-200 rounded-xl">
                 <table class="w-full text-left">
@@ -70,12 +76,64 @@
                 </form>
             </div>
             
-            <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">📋 Lịch Trực Đang Mở Gần Đây <span class="text-xs text-red-400 font-medium">(Bấm ✕ để Xóa)</span></h3>
+            <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">📋 Lịch Trực Đang Mở Gần Đây <span class="text-xs text-red-400 font-medium">(Bấm ✕ để Xóa, ✏️ để Sửa)</span></h3>
             <div id="mySchList" class="flex flex-wrap gap-4"></div>
+        </div>
+
+        <!-- TAB 3: QUẢN LÝ BỆNH ÁN (MedicalRecord R/U/D) -->
+        <div id="tabEMRList" class="tab-content bg-white rounded-b-3xl rounded-tr-3xl p-8 border border-slate-200 shadow hidden">
+            <h2 class="text-2xl font-black text-slate-800 mb-6">Tất Cả Bệnh Án Đã Tạo</h2>
+            <div class="overflow-hidden border border-slate-200 rounded-xl">
+                <table class="w-full text-left">
+                    <thead class="bg-teal-100 text-teal-800 font-bold uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Bệnh Nhân</th>
+                            <th class="p-4">Chẩn Đoán</th>
+                            <th class="p-4">Kê Đơn</th>
+                            <th class="p-4">Ngày Tạo</th>
+                            <th class="p-4 text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblEMRList" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA SCHEDULE -->
+    <div id="modalEditSch" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-blue-800 mb-4">Sửa Khung Giờ Trực</h3>
+            <input type="hidden" id="editSchId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Ngày</label><input type="date" id="editSchDate" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Khung Giờ</label><input type="text" id="editSchTime" class="w-full p-3 rounded-xl border outline-none" placeholder="VD: 08:00 - 09:00"></div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="document.getElementById('modalEditSch').classList.remove('active')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditSch()" class="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA BỆNH ÁN -->
+    <div id="modalEditEMR" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-teal-800 mb-4">Cập Nhật Bệnh Án</h3>
+            <input type="hidden" id="editEMRId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Chẩn Đoán</label><textarea id="editEMRDiag" rows="3" class="w-full p-3 rounded-xl border outline-none"></textarea></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Kê Đơn Thuốc</label><textarea id="editEMRRx" rows="3" class="w-full p-3 rounded-xl border outline-none"></textarea></div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="document.getElementById('modalEditEMR').classList.remove('active')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditEMR()" class="px-6 py-2 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700">Lưu</button>
+            </div>
         </div>
     </div>
 
     <!-- MODAL LẬP BỆNH ÁN BIÊN LAI CHUẨN XÁC -->
+
     <div id="modalEMR" class="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-2xl relative border-t-8 border-blue-600">
             <button onclick="document.getElementById('modalEMR').classList.add('hidden')" class="absolute top-4 right-6 text-red-500 font-bold hover:text-red-700 text-xl overflow-hidden">✖</button>
@@ -113,7 +171,7 @@
         document.getElementById('linkMyProfile').href = `/profile.html?id=${docUser._id}`;
 
         // ------------------ SWITCH TABS ------------------
-        window.switchTab = (tabId) => {
+        window.switchTab = (tabId, btn) => {
             document.querySelectorAll('.tab-content').forEach(t => {
                 t.classList.remove('block'); t.classList.add('hidden');
             });
@@ -121,14 +179,16 @@
                 b.classList.replace('bg-blue-600', 'bg-slate-300'); b.classList.replace('text-white', 'text-slate-700');
             });
             document.getElementById(tabId).classList.remove('hidden'); document.getElementById(tabId).classList.add('block');
-            event.target.classList.replace('bg-slate-300', 'bg-blue-600'); event.target.classList.replace('text-slate-700', 'text-white');
+            btn.classList.replace('bg-slate-300', 'bg-blue-600'); btn.classList.replace('text-slate-700', 'text-white');
         };
 
         // ------------------ TAB 1: LẤY LỊCH HẸN BỆNH NHÂN CHỜ MÌNH KHÁM ------------------
+        let lastQueueData = []; // Lưu lại để đối soát tên bệnh nhân ở tab Bệnh án
         async function loadDoctorQueue() {
             const tbl = document.getElementById('tblQueue');
             try {
                 const appts = await authFetch('/appointments');
+                lastQueueData = appts; // Lưu cache
                 const myAppts = appts.filter(a => a.doctorId && a.doctorId._id === docUser._id);
                 myAppts.reverse(); // Mới nhất lên đầu
 
@@ -277,7 +337,10 @@
                     const ds = new Date(o.date).toLocaleDateString();
                     const delBtn = isBooked
                         ? '<span class="text-[10px] text-red-400 mt-1 block">🔒 Đã đặt</span>'
-                        : `<button onclick="deleteSlot('${o._id}')" class="mt-1.5 bg-white border border-red-300 text-red-500 text-[10px] px-2 py-0.5 rounded-lg hover:bg-red-50 font-bold transition shadow-sm">✕ Xóa</button>`;
+                        : `<div class="flex gap-1 mt-1.5 justify-center">
+                            <button onclick="openEditSch('${o._id}','${o.date ? o.date.split('T')[0] : ''}','${o.timeSlot}')" class="bg-white border border-blue-300 text-blue-500 text-[10px] px-2 py-0.5 rounded-lg hover:bg-blue-50 font-bold transition shadow-sm">✏️ Sửa</button>
+                            <button onclick="deleteSlot('${o._id}')" class="bg-white border border-red-300 text-red-500 text-[10px] px-2 py-0.5 rounded-lg hover:bg-red-50 font-bold transition shadow-sm">✕ Xóa</button>
+                           </div>`;
                     listObj.innerHTML += `<div class="p-3 border-2 rounded-xl ${c} font-bold text-center w-40 shadow-sm relative">
                         <p class="text-sm">${o.timeSlot}</p>
                         <span class="text-xs opacity-70">${ds}</span>
@@ -314,9 +377,106 @@
             }catch(er){ alert("LỖI TẠO LỊCH " + er.message); }
         });
 
+        // ------------------ UPDATE SCHEDULE ------------------
+        window.openEditSch = (id, date, timeSlot) => {
+            document.getElementById('editSchId').value = id;
+            document.getElementById('editSchDate').value = date;
+            document.getElementById('editSchTime').value = timeSlot;
+            document.getElementById('modalEditSch').classList.add('active');
+        };
+        window.submitEditSch = async () => {
+            const id = document.getElementById('editSchId').value;
+            try {
+                await authFetch(`/schedules/${id}`, { method: 'PUT', body: JSON.stringify({
+                    date: document.getElementById('editSchDate').value,
+                    timeSlot: document.getElementById('editSchTime').value
+                })});
+                alert("Cập nhật lịch trực thành công!");
+                document.getElementById('modalEditSch').classList.remove('active');
+                loadMySchedules();
+            } catch(e) { alert("Lỗi cập nhật: " + e.message); }
+        };
+
+        // ------------------ TAB 3: MEDICAL RECORDS (R/U/D) ------------------
+        async function loadEMRList() {
+            const tb = document.getElementById('tblEMRList');
+            try {
+                const recs = await authFetch('/medical-records');
+                const myRecs = recs.filter(r => {
+                    const dId = r.doctorId?._id || r.doctorId;
+                    return dId === docUser._id;
+                });
+                tb.innerHTML = '';
+                if (myRecs.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="5" class="p-10 text-center font-bold text-slate-400">Chưa có bệnh án nào.</td></tr>';
+                    return;
+                }
+                myRecs.forEach(r => {
+                    const p = r.patientId;
+                    let patName = '—';
+                    if (p && typeof p === 'object') {
+                        patName = p.fullName || p.username || 'Bệnh nhân ẩn danh';
+                    } else if (p) {
+                        // Thử tìm trong danh sách hàng chờ nếu populate thất bại
+                        const inQueue = lastQueueData.find(a => (a.patientId?._id || a.patientId) === p);
+                        if (inQueue) {
+                            patName = inQueue.patientId?.fullName || inQueue.patientId?.username || `ID: ...${p.slice(-6)}`;
+                        } else {
+                            patName = `ID: ...${p.slice(-6)}`;
+                        }
+                    }
+
+                    const d = r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : '—';
+                    const diagShort = (r.diagnosis || '—').length > 50 ? r.diagnosis.slice(0, 50) + '...' : (r.diagnosis || '—');
+                    const rxShort = (r.prescription || '—').length > 50 ? r.prescription.slice(0, 50) + '...' : (r.prescription || '—');
+                    tb.innerHTML += `<tr class="border-b last:border-none hover:bg-teal-50">
+                        <td class="p-4 font-bold text-slate-800">${patName}</td>
+                        <td class="p-4 text-sm text-slate-600">${diagShort}</td>
+                        <td class="p-4 text-sm text-slate-600">${rxShort}</td>
+                        <td class="p-4 text-sm text-slate-400">${d}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button onclick="openEditEMRModal('${r._id}','${(r.diagnosis||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}','${(r.prescription||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')" class="bg-teal-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-teal-600 transition">Sửa</button>
+                                <button onclick="delEMR('${r._id}')" class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-600 transition">Xóa</button>
+                            </div>
+                        </td></tr>`;
+                });
+            } catch(e) { tb.innerHTML = `<tr><td colspan="5" class="p-4 text-red-500">Lỗi: ${e.message}</td></tr>`; }
+        }
+
+        // UPDATE MedicalRecord
+        window.openEditEMRModal = (id, diag, rx) => {
+            document.getElementById('editEMRId').value = id;
+            document.getElementById('editEMRDiag').value = diag;
+            document.getElementById('editEMRRx').value = rx;
+            document.getElementById('modalEditEMR').classList.add('active');
+        };
+        window.submitEditEMR = async () => {
+            const id = document.getElementById('editEMRId').value;
+            try {
+                await authFetch(`/medical-records/${id}`, { method: 'PUT', body: JSON.stringify({
+                    diagnosis: document.getElementById('editEMRDiag').value,
+                    prescription: document.getElementById('editEMRRx').value
+                })});
+                alert("Cập nhật Bệnh Án thành công!");
+                document.getElementById('modalEditEMR').classList.remove('active');
+                loadEMRList();
+            } catch(e) { alert("Lỗi cập nhật: " + e.message); }
+        };
+
+        // DELETE MedicalRecord
+        window.delEMR = async (id) => {
+            if (!confirm("Xác nhận xóa Bệnh Án này? (Soft-Delete)")) return;
+            try {
+                await authFetch(`/medical-records/${id}`, { method: 'DELETE' });
+                loadEMRList();
+            } catch(e) { alert("Lỗi xóa: " + e.message); }
+        };
+
         window.onload = () => {
             loadDoctorQueue();
             loadMySchedules();
+            loadEMRList();
         };
     </script>
 </body>

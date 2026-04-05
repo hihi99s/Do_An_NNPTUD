@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ Sơ Y Tế Cá Nhân (Bệnh nhân) - Y Tế Số</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50; justify-content:center; align-items:center; }
+        .modal-overlay.active { display:flex; }
+        .modal-box { background:#fff; border-radius:1.5rem; padding:2rem; min-width:400px; max-width:540px; width:90%; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex flex-col">
     <!-- Navbar (Will be injected by auth.js) -->
@@ -33,6 +38,67 @@
                         <!-- Nội dung sẽ được render tại đây -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- LỊCH SỬ THANH TOÁN (Payment R/U/D) -->
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow mb-8">
+            <h2 class="text-2xl font-black text-slate-800 mb-6">Lịch Sử Thanh Toán</h2>
+            <div class="overflow-hidden border border-slate-200 rounded-xl">
+                <table class="w-full text-left">
+                    <thead class="bg-yellow-100 text-yellow-800 font-bold uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Mã TT</th>
+                            <th class="p-4">Số Tiền</th>
+                            <th class="p-4">Phương Thức</th>
+                            <th class="p-4">Trạng Thái</th>
+                            <th class="p-4">Ngày Tạo</th>
+                            <th class="p-4 text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblPayments" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ĐÁNH GIÁ CỦA TÔI (Review R/U/D) -->
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow mb-8">
+            <h2 class="text-2xl font-black text-slate-800 mb-6">Đánh Giá Của Tôi</h2>
+            <div id="myReviewsList" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA PAYMENT -->
+    <div id="modalEditPay" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-yellow-700 mb-4">Cập Nhật Thanh Toán</h3>
+            <input type="hidden" id="editMyPayId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Phương Thức</label>
+                    <select id="editMyPayMethod" class="w-full p-3 rounded-xl border outline-none bg-white">
+                        <option value="CASH">CASH</option><option value="TRANSFER">TRANSFER</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="document.getElementById('modalEditPay').classList.remove('active')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditMyPay()" class="px-6 py-2 bg-yellow-500 text-white rounded-xl font-bold hover:bg-yellow-600">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA REVIEW -->
+    <div id="modalEditReview" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="text-xl font-black text-purple-700 mb-4">Cập Nhật Đánh Giá</h3>
+            <input type="hidden" id="editRevId">
+            <div class="space-y-3">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Số Sao (1-5)</label><input type="number" id="editRevRating" min="1" max="5" class="w-full p-3 rounded-xl border outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1">Nhận Xét</label><textarea id="editRevComment" rows="3" class="w-full p-3 rounded-xl border outline-none"></textarea></div>
+            </div>
+            <div class="flex gap-3 mt-6 justify-end">
+                <button onclick="document.getElementById('modalEditReview').classList.remove('active')" class="px-6 py-2 bg-slate-200 rounded-xl font-bold hover:bg-slate-300">Hủy</button>
+                <button onclick="submitEditReview()" class="px-6 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700">Lưu</button>
             </div>
         </div>
     </div>
@@ -122,7 +188,13 @@
                     
                     let actionHtml = ``;
                     if (appt.status === 'PENDING') {
-                        actionHtml = `<button onclick="cancelAppt('${appt._id}')" class="px-4 py-1.5 bg-red-100 text-red-600 font-bold rounded shadow-sm text-xs border border-red-300 hover:bg-red-200 transition">❌ Hủy Lịch Hẹn</button>`;
+                        actionHtml = `
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="cancelAppt('${appt._id}')" class="px-4 py-1.5 bg-red-100 text-red-600 font-bold rounded shadow-sm text-xs border border-red-300 hover:bg-red-200 transition">❌ Hủy Lịch Hẹn</button>
+                            <button onclick="delAppt('${appt._id}')" class="px-3 py-1.5 bg-red-500 text-white font-bold rounded shadow-sm text-xs hover:bg-red-600 transition">🗑 Xóa</button>
+                        </div>`;
+                    } else if (appt.status === 'CANCELLED') {
+                        actionHtml = `<button onclick="delAppt('${appt._id}')" class="px-4 py-1.5 bg-red-500 text-white font-bold rounded shadow-sm text-xs hover:bg-red-600 transition">🗑 Xóa Vĩnh Viễn</button>`;
                     } else if (appt.status === 'COMPLETED') {
                         // HIỆN CÁC TÙY CHỌN THANH TOÁN VÀ XEM EMR Nhóm Patient Nâng Cao
                         actionHtml = `
@@ -158,7 +230,7 @@
                 // Tạo phiếu thanh toán
                 await authFetch('/payments', {
                     method: 'POST',
-                    body: JSON.stringify({ appointmentId: curApptContext.apId, patientId: patUser._id, amount: 150000, paymentMethod: 'TRANSFER', status: 'COMPLETED' })
+                    body: JSON.stringify({ appointmentId: curApptContext.apId, patientId: patUser._id, amount: 150000, paymentMethod: 'TRANSFER', status: 'PAID' })
                 });
                 alert("Đã ghi nhận thanh toán xuất sắc qua cổng Y Tế Số!");
                 document.getElementById('modalPay').classList.add('hidden');
@@ -227,7 +299,134 @@
             } catch(e) { alert("Lỗi hủy lịch: " + e.message); }
         };
 
-        window.onload = loadPatientSchedules;
+        // --- XÓA LỊCH HẸN (DELETE) ---
+        window.delAppt = async (apId) => {
+            if (!confirm('Xác nhận XÓA lịch hẹn này khỏi hệ thống? (Soft-Delete)')) return;
+            try {
+                await authFetch(`/appointments/${apId}`, { method: 'DELETE' });
+                alert("Đã xóa lịch hẹn!");
+                loadPatientSchedules();
+            } catch(e) { alert("Lỗi xóa: " + e.message); }
+        };
+
+        // --- LỊCH SỬ THANH TOÁN (R/U/D) ---
+        async function loadMyPayments() {
+            const tb = document.getElementById('tblPayments');
+            try {
+                const pays = await authFetch('/payments');
+                const myPays = pays.filter(p => {
+                    const pId = p.patientId?._id || p.patientId;
+                    return pId === patUser._id;
+                });
+                tb.innerHTML = '';
+                if (myPays.length === 0) {
+                    tb.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">Chưa có thanh toán nào.</td></tr>';
+                    return;
+                }
+                myPays.forEach(p => {
+                    const statusColor = p.status === 'PAID' ? 'bg-green-100 text-green-800' : p.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800';
+                    const d = p.createdAt ? new Date(p.createdAt).toLocaleDateString('vi-VN') : '—';
+                    tb.innerHTML += `<tr class="border-b last:border-none hover:bg-yellow-50">
+                        <td class="p-4 text-xs font-mono text-slate-400">${p._id.slice(-6)}</td>
+                        <td class="p-4 font-bold">${Number(p.amount).toLocaleString('vi-VN')} ₫</td>
+                        <td class="p-4 text-sm">${p.paymentMethod}</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColor}">${p.status}</span></td>
+                        <td class="p-4 text-sm text-slate-400">${d}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button onclick="openEditMyPay('${p._id}','${p.paymentMethod}')" class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded text-xs font-bold hover:bg-yellow-500">Sửa</button>
+                                <button onclick="delMyPay('${p._id}')" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-600">Xóa</button>
+                            </div>
+                        </td></tr>`;
+                });
+            } catch(e) { tb.innerHTML = `<tr><td colspan="6" class="p-4 text-red-500">Lỗi: ${e.message}</td></tr>`; }
+        }
+
+        window.openEditMyPay = (id, method) => {
+            document.getElementById('editMyPayId').value = id;
+            document.getElementById('editMyPayMethod').value = method;
+            document.getElementById('modalEditPay').classList.add('active');
+        };
+        window.submitEditMyPay = async () => {
+            const id = document.getElementById('editMyPayId').value;
+            try {
+                await authFetch(`/payments/${id}`, { method: 'PUT', body: JSON.stringify({
+                    paymentMethod: document.getElementById('editMyPayMethod').value
+                })});
+                alert("Cập nhật thanh toán thành công!");
+                document.getElementById('modalEditPay').classList.remove('active');
+                loadMyPayments();
+            } catch(e) { alert("Lỗi: " + e.message); }
+        };
+        window.delMyPay = async (id) => {
+            if (!confirm("Xác nhận xóa thanh toán này?")) return;
+            try { await authFetch(`/payments/${id}`, { method: 'DELETE' }); loadMyPayments(); } catch(e) { alert(e.message); }
+        };
+
+        // --- ĐÁNH GIÁ CỦA TÔI (R/U/D) ---
+        async function loadMyReviews() {
+            const box = document.getElementById('myReviewsList');
+            try {
+                const reviews = await authFetch('/reviews');
+                const myRevs = reviews.filter(r => {
+                    const pId = r.patientId?._id || r.patientId;
+                    return pId === patUser._id;
+                });
+                box.innerHTML = '';
+                if (myRevs.length === 0) {
+                    box.innerHTML = '<p class="text-slate-400 font-medium text-center py-6">Chưa có đánh giá nào.</p>';
+                    return;
+                }
+                myRevs.forEach(r => {
+                    const stars = '⭐'.repeat(r.rating);
+                    const docName = r.doctorId?.fullName || r.doctorId?.username || '—';
+                    const d = r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : '';
+                    box.innerHTML += `<div class="bg-purple-50 p-4 rounded-2xl border border-purple-100 flex items-start gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-bold text-purple-800">Bs. ${docName}</span>
+                                <span class="text-xs text-slate-400">${d}</span>
+                            </div>
+                            <div class="text-lg mb-1">${stars}</div>
+                            <p class="text-slate-600 text-sm">${r.comment || 'Không có nhận xét.'}</p>
+                        </div>
+                        <div class="flex gap-2 flex-shrink-0">
+                            <button onclick="openEditRev('${r._id}',${r.rating},'${(r.comment||'').replace(/'/g,"\\'").replace(/\n/g,'\\n')}')" class="bg-purple-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-purple-600">Sửa</button>
+                            <button onclick="delReview('${r._id}')" class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-600">Xóa</button>
+                        </div>
+                    </div>`;
+                });
+            } catch(e) { box.innerHTML = `<p class="text-red-500">${e.message}</p>`; }
+        }
+
+        window.openEditRev = (id, rating, comment) => {
+            document.getElementById('editRevId').value = id;
+            document.getElementById('editRevRating').value = rating;
+            document.getElementById('editRevComment').value = comment;
+            document.getElementById('modalEditReview').classList.add('active');
+        };
+        window.submitEditReview = async () => {
+            const id = document.getElementById('editRevId').value;
+            try {
+                await authFetch(`/reviews/${id}`, { method: 'PUT', body: JSON.stringify({
+                    rating: parseInt(document.getElementById('editRevRating').value),
+                    comment: document.getElementById('editRevComment').value
+                })});
+                alert("Cập nhật đánh giá thành công!");
+                document.getElementById('modalEditReview').classList.remove('active');
+                loadMyReviews();
+            } catch(e) { alert("Lỗi: " + e.message); }
+        };
+        window.delReview = async (id) => {
+            if (!confirm("Xác nhận xóa đánh giá này?")) return;
+            try { await authFetch(`/reviews/${id}`, { method: 'DELETE' }); loadMyReviews(); } catch(e) { alert(e.message); }
+        };
+
+        window.onload = () => {
+            loadPatientSchedules();
+            loadMyPayments();
+            loadMyReviews();
+        };
     </script>
 </body>
 </html>

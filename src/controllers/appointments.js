@@ -47,10 +47,36 @@ const getAllAppointments = async () => {
 };
 
 const updateAppointment = async (id, data) => {
-  return await Appointment.findByIdAndUpdate(id, data, { new: true });
+  const oldAppt = await Appointment.findById(id);
+  const updatedAppt = await Appointment.findByIdAndUpdate(id, data, { new: true });
+  
+  // Nếu chuyển trạng thái sang CANCELLED thì giải phóng slot (Bỏ qua check status cũ để sửa lỗi kẹt dữ liệu)
+  if (data.status === 'CANCELLED' && oldAppt) {
+    console.log('Phát hiện HỦY lịch - Đang giải phóng Slot:', oldAppt.scheduleId);
+    await Schedule.findByIdAndUpdate(oldAppt.scheduleId, { isBooked: false });
+  }
+
+  // Nếu chuyển từ CANCELLED ngược lại PENDING/CONFIRMED thì phải chiếm lại slot (nếu còn trống)
+  if (oldAppt && oldAppt.status === 'CANCELLED' && (data.status === 'PENDING' || data.status === 'CONFIRMED')) {
+    const targetSchedule = await Schedule.findById(oldAppt.scheduleId);
+    if (targetSchedule && !targetSchedule.isBooked) {
+      targetSchedule.isBooked = true;
+      await targetSchedule.save();
+    } else {
+      throw new Error("Không thể khôi phục lịch hẹn vì khung giờ này đã có người khác đặt!");
+    }
+  }
+
+  return updatedAppt;
 };
 
 const deleteAppointment = async (id) => {
+  const appt = await Appointment.findById(id);
+  if (appt && appt.scheduleId) {
+    // Giải phóng khung giờ khi xóa lịch hẹn
+    await Schedule.findByIdAndUpdate(appt.scheduleId, { isBooked: false });
+  }
+
   return await Appointment.findByIdAndUpdate(
     id,
     { isDeleted: true },
